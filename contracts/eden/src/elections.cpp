@@ -315,8 +315,8 @@ namespace eden
 
    void elections::set_next_election_time(eosio::time_point election_time)
    {
-      auto lock_time = eosio::current_time_point();
-      eosio::check(election_time >= lock_time, "New election time is too close");
+      // auto lock_time = eosio::current_time_point();
+      // eosio::check(election_time >= lock_time, "New election time is too close");
       uint8_t sequence = 1;
       if (state_sing.exists())
       {
