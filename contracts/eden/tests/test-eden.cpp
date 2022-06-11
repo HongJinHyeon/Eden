@@ -477,6 +477,9 @@ TEST_CASE("board resignation")
    t.genesis();
    t.run_election();
    t.induct_n(4);
+   CHECK(get_eden_membership("alice"_n).status() == eden::member_status::active_member);
+   CHECK(get_eden_membership("egeon"_n).status() == eden::member_status::active_member);
+   CHECK(get_eden_membership("pip"_n).status() == eden::member_status::active_member);
    t.alice.act<actions::resign>("alice"_n);
    t.egeon.act<actions::resign>("egeon"_n);
    t.pip.act<actions::resign>("pip"_n);
