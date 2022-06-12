@@ -477,11 +477,8 @@ TEST_CASE("board resignation")
    t.genesis();
    t.run_election();
    t.induct_n(4);
-   CHECK(get_eden_membership("alice"_n).status() == eden::member_status::active_member);
    t.alice.act<actions::resign>("alice"_n);
-   CHECK(get_eden_membership("egeon"_n).status() == eden::member_status::active_member);
    t.egeon.act<actions::resign>("egeon"_n);
-   CHECK(get_eden_membership("pip"_n).status() == eden::member_status::active_member);
    t.pip.act<actions::resign>("pip"_n);
 }
 
@@ -489,9 +486,13 @@ TEST_CASE("renaming")
 {
    eden_tester t;
    t.genesis();
+   CHECK(get_eden_membership("alice"_n).status() == eden::member_status::active_member);
    auto distribution_time = t.next_election_time();
+   CHECK(get_eden_membership("alice"_n).status() == eden::member_status::active_member);
    t.run_election();
+   CHECK(get_eden_membership("alice"_n).status() == eden::member_status::active_member);
    t.alice.act<actions::distribute>(100);
+   CHECK(get_eden_membership("alice"_n).status() == eden::member_status::active_member);
    t.alice.act<actions::fundtransfer>("alice"_n, distribution_time, 1, "alice"_n, s2a("0.0001 EOS"),
                                       "");
    test_chain::user_context{t.chain, {{"eden.gm"_n, "board.major"_n}, {"ahab"_n, "active"_n}}}
