@@ -486,13 +486,10 @@ TEST_CASE("renaming")
 {
    eden_tester t;
    t.genesis();
-   CHECK(get_eden_membership("alice"_n).status() == eden::member_status::active_member);
    auto distribution_time = t.next_election_time();
-   CHECK(get_eden_membership("alice"_n).status() == eden::member_status::active_member);
    t.run_election();
-   CHECK(get_eden_membership("alice"_n).status() == eden::member_status::active_member);
    t.alice.act<actions::distribute>(100);
-   CHECK(get_eden_membership("alice"_n).status() == eden::member_status::active_member);
+
    t.alice.act<actions::fundtransfer>("alice"_n, distribution_time, 1, "alice"_n, s2a("0.0001 EOS"),
                                       "");
    test_chain::user_context{t.chain, {{"eden.gm"_n, "board.major"_n}, {"ahab"_n, "active"_n}}}
@@ -507,7 +504,7 @@ TEST_CASE("renaming")
           "member alice not found");
    t.ahab.act<actions::fundtransfer>("ahab"_n, distribution_time, 1, "ahab"_n, s2a("0.0001 EOS"),
                                      "");
-
+   CHECK(get_eden_membership("alice"_n).status() == eden::member_status::active_member);
    CHECK(get_eden_membership("pip"_n).representative() == "ahab"_n);
    CHECK(get_eden_membership("ahab"_n).representative() == "ahab"_n);
 }
@@ -516,6 +513,7 @@ TEST_CASE("auction")
 {
    eden_tester t;
    t.genesis();
+      CHECK(get_eden_membership("alice"_n).status() == eden::member_status::active_member);
    t.ahab.act<token::actions::transfer>("ahab"_n, eden::atomic_market_account, s2a("10.0000 EOS"),
                                         "deposit");
    t.ahab.act<atomicmarket::actions::auctionbid>("ahab"_n, 1, s2a("10.0000 EOS"), eosio::name{});
@@ -529,6 +527,7 @@ TEST_CASE("auction batch claim")
 {
    eden_tester t;
    t.genesis();
+   CHECK(get_eden_membership("alice"_n).status() == eden::member_status::active_member);
    t.ahab.act<token::actions::transfer>("ahab"_n, eden::atomic_market_account, s2a("10.0000 EOS"),
                                         "deposit");
    t.ahab.act<atomicmarket::actions::auctionbid>("ahab"_n, 1, s2a("10.0000 EOS"), eosio::name{});
@@ -547,6 +546,7 @@ TEST_CASE("auction migration")
 {
    eden_tester t;
    t.genesis();
+   CHECK(get_eden_membership("alice"_n).status() == eden::member_status::active_member);
    t.eden_gm.act<actions::unmigrate>();
    t.ahab.act<token::actions::transfer>("ahab"_n, eden::atomic_market_account, s2a("10.0000 EOS"),
                                         "deposit");
