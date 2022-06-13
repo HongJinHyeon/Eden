@@ -511,7 +511,7 @@ struct eden_tester
 
    void change_minimun_donation()
    {
-      eden_gm.act<actions::set_change_minimum_donation>(s2a("3.0000 EOS"));
+      eden_gm.act<actions::changemindon>(s2a("3.0000 EOS"));
 
    };
 
