@@ -202,6 +202,7 @@ namespace eden
       void migrate(uint32_t limit);
       // For testing only.
       void unmigrate();
+      void changemindon(const eosio::asset& new_min_don);
 
 #ifdef ENABLE_SET_TABLE_ROWS
       void settablerows(eosio::name scope, const std::vector<table_variant>&);
@@ -294,6 +295,7 @@ namespace eden
        action(gc, limit, ricardian_contract(gc_ricardian)),
        action(migrate, limit),
        action(unmigrate),
+       action(changemindon,new_min_don),
 #ifdef ENABLE_SET_TABLE_ROWS
        action(settablerows, scope, rows),
 #endif
