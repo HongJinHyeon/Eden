@@ -63,5 +63,7 @@ namespace eden
       void set_stage(contract_stage stage);
       void set_election_start_time(uint32_t time);
       void set_election_round_duration(uint32_t duration);
+      void set_change_minimum_donation(const eosio::asset& new_min_don);
+      
    };
 }  // namespace eden

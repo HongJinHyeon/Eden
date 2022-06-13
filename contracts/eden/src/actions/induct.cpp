@@ -258,4 +258,17 @@ namespace eden
       migrations.on_rename(account, new_account);
    }
 
+   void eden::changemindon(const eosio::asset& new_min_don)
+   {
+      eosio::require_auth(get_self());
+
+      globals globals{get_self()};
+
+      eosio::check(new_min_don.symbol == eosio::symbol{"EOS", 4},
+                      "Only EOS can be accept");
+      eosio::check(new_min_don.amount >= 0.0001, "Not valid Amount");
+
+      globals.set_change_minimum_donation(new_min_don);
+   }
+
 }  // namespace eden

@@ -53,4 +53,10 @@ namespace eden
       data.election_round_time_sec = duration;
       get_global_singleton(contract).set(data, eosio::same_payer);
    }
+
+    void globals::set_change_minimum_donation(const eosio::asset& new_min_don)
+   {
+      data.minimum_donation = new_min_don;
+      get_global_singleton(contract).set(data, eosio::same_payer);
+   }
 }  // namespace eden

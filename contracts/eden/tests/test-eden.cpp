@@ -463,6 +463,15 @@ TEST_CASE("induction")
    CHECK(get_table_size<eden::encrypted_data_table_type>("induction"_n) == 0);
 }
 
+TEST_CASE("chane minimum donation")
+{
+   eden_tester t;
+   t.genesis();
+   t.change_minimun_donation();
+   t.induct_n_change_min_don(4);
+   CHECK(members("eden.gm"_n).stats().active_members == 7);
+}
+
 TEST_CASE("resignation")
 {
    eden_tester t;

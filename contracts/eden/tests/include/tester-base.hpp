@@ -509,6 +509,57 @@ struct eden_tester
       return result;
    };
 
+   void change_minimun_donation()
+   {
+      eden_gm.act<actions::set_change_minimum_donation>(s2a("3.0000 EOS"));
+
+   };
+
+   void finish_induction_change_min_don(uint64_t induction_id,
+                         eosio::name inviter,
+                         eosio::name invitee,
+                         const std::vector<eosio::name>& witnesses)
+   {
+      chain.as(invitee).act<token::actions::transfer>(invitee, "eden.gm"_n, s2a("3.0000 EOS"),
+                                                      "memo");
+
+      std::string video = "QmTYqoPYf7DiVebTnvwwFdTgsYXg2RnuPrt8uddjfW2kHS";
+      eden::new_member_profile profile{invitee.to_string(),
+                                       "Qmb7WmZiSDXss5HfuKfoSf6jxTDrHzr8AoAUDeDMLNDuws",
+                                       "Hi, I'm the coolest " + invitee.to_string() + " ever!",
+                                       "{\"blog\":\"" + invitee.to_string() + ".example.com\"}"};
+      chain.as(invitee).act<actions::inductprofil>(induction_id, profile);
+      chain.as(inviter).act<actions::inductvideo>(inviter, induction_id, video);
+
+      auto hash_data = eosio::convert_to_bin(std::tuple(video, profile));
+      auto induction_hash = eosio::sha256(hash_data.data(), hash_data.size());
+
+      chain.as(inviter).act<actions::inductendors>(inviter, induction_id, induction_hash);
+      for (auto witness : witnesses)
+      {
+         chain.as(witness).act<actions::inductendors>(witness, induction_id, induction_hash);
+      }
+      chain.as(invitee).act<actions::inductdonate>(invitee, induction_id, s2a("3.0000 EOS"));
+      CHECK(get_eden_membership(invitee).status() == eden::member_status::active_member);
+   };
+
+   void induct_change_min_don(eosio::name account)
+   {
+      alice.act<actions::inductinit>(42, "alice"_n, account, std::vector{"pip"_n, "egeon"_n});
+      finish_induction_change_min_don(42, "alice"_n, account, {"pip"_n, "egeon"_n});
+   }
+
+    void induct_n_change_min_don(std::size_t count)
+   {
+      auto members = make_names(count);
+      create_accounts(members);
+      for (auto a : members)
+      {
+         chain.start_block();
+         induct_change_min_don(a);
+      }
+   }
+
    /*
    void newsession(eosio::name authorizer,
                    eosio::name eden_account,
