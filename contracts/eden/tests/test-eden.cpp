@@ -480,16 +480,16 @@ TEST_CASE("resignation")
    CHECK(members{"eden.gm"_n}.is_new_member("alice"_n));
 }
 
-// TEST_CASE("board resignation")
-// {
-//    eden_tester t;
-//    t.genesis();
-//    t.run_election();
-//    t.induct_n(4);
-//    t.alice.act<actions::resign>("alice"_n);
-//    t.egeon.act<actions::resign>("egeon"_n);
-//    t.pip.act<actions::resign>("pip"_n);
-// }
+TEST_CASE("board resignation")
+{
+   eden_tester t;
+   t.genesis();
+   t.run_election();
+   t.induct_n(4);
+   t.alice.act<actions::resign>("alice"_n);
+   t.egeon.act<actions::resign>("egeon"_n);
+   t.pip.act<actions::resign>("pip"_n);
+}
 
 TEST_CASE("renaming")
 {
@@ -959,7 +959,7 @@ TEST_CASE("budget distribution")
    t.alice.act<actions::distribute>(250);
    CHECK(t.get_total_budget() == s2a("3.5100 EOS"));
    // Skip into the next election
-   t.skip_to("2021-01-02T15:30:00.000");
+   t.skip_to("2020-10-03T15:30:00.000");
    t.alice.act<actions::distribute>(1);
    t.alice.act<actions::distribute>(5000);
    CHECK(t.get_total_budget() == s2a("10.9435 EOS"));
