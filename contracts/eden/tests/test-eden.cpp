@@ -959,7 +959,7 @@ TEST_CASE("budget distribution")
    t.alice.act<actions::distribute>(250);
    CHECK(t.get_total_budget() == s2a("3.5100 EOS"));
    // Skip into the next election
-   t.skip_to("2020-10-03T15:30:00.000");
+   t.skip_to("2020-10-10T15:30:00.000");
    t.alice.act<actions::distribute>(1);
    t.alice.act<actions::distribute>(5000);
    CHECK(t.get_total_budget() == s2a("10.9435 EOS"));
