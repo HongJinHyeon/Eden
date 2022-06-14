@@ -265,7 +265,7 @@ namespace eden
       globals globals{get_self()};
 
       eosio::check(new_min_don.symbol == eosio::symbol{"EOS", 4},
-                      "Only EOS can be accept");
+                      "Only EOS can be accepted");
       eosio::check(new_min_don.amount >= 0.0001, "Not valid Amount");
 
       globals.set_change_minimum_donation(new_min_don);

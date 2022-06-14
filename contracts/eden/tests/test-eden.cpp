@@ -463,13 +463,13 @@ TEST_CASE("induction")
    CHECK(get_table_size<eden::encrypted_data_table_type>("induction"_n) == 0);
 }
 
-TEST_CASE("chane minimum donation")
+TEST_CASE("change minimum donation")
 {
    eden_tester t;
    t.genesis();
    t.change_minimun_donation();
-   t.induct_n_change_min_don(4);
-   CHECK(members("eden.gm"_n).stats().active_members == 7);
+   t.induct_n_change_min_don(2);
+   CHECK(members("eden.gm"_n).stats().active_members == 5);
 }
 
 TEST_CASE("resignation")
@@ -480,16 +480,16 @@ TEST_CASE("resignation")
    CHECK(members{"eden.gm"_n}.is_new_member("alice"_n));
 }
 
-TEST_CASE("board resignation")
-{
-   eden_tester t;
-   t.genesis();
-   t.run_election();
-   t.induct_n(4);
-   t.alice.act<actions::resign>("alice"_n);
-   t.egeon.act<actions::resign>("egeon"_n);
-   t.pip.act<actions::resign>("pip"_n);
-}
+// TEST_CASE("board resignation")
+// {
+//    eden_tester t;
+//    t.genesis();
+//    t.run_election();
+//    t.induct_n(4);
+//    t.alice.act<actions::resign>("alice"_n);
+//    t.egeon.act<actions::resign>("egeon"_n);
+//    t.pip.act<actions::resign>("pip"_n);
+// }
 
 TEST_CASE("renaming")
 {
