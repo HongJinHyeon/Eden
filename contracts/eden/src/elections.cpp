@@ -367,7 +367,7 @@ namespace eden
       uint16_t new_threshold = active_members + (active_members + 9) / 10;
       new_threshold = std::clamp(new_threshold, min_election_threshold, max_active_members);
       set_state_sing(current_election_state_registration_v1{
-          get_election_time(state.election_start_time, origin_time + eosio::days(90)),
+          get_election_time(state.election_start_time, origin_time + eosio::days(180)),
           new_threshold});
    }
 
