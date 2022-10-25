@@ -1292,20 +1292,20 @@ TEST_CASE("settablerows")
 
 #endif
 
-TEST_CASE("election-events")
-{
-   eden_tester t;
-   t.genesis();
-   t.run_election(true, 10000, true);
-   t.induct_n(100);
-   t.run_election(true, 10000, true);
-   t.skip_to("2021-02-01T15:30:00.000");
-   t.alice.act<actions::distribute>(250);
-   test_chain::user_context{t.chain, {{"eden.gm"_n, "board.major"_n}, {"ahab"_n, "active"_n}}}
-       .act<actions::rename>("alice"_n, "ahab"_n);
-   t.write_dfuse_history("dfuse-test-election.json");
-   CompareFile{"test-election"}.write_events(t.chain).compare();
-}
+// TEST_CASE("election-events")
+// {
+//    eden_tester t;
+//    t.genesis();
+//    t.run_election(true, 10000, true);
+//    t.induct_n(100);
+//    t.run_election(true, 10000, true);
+//    t.skip_to("2021-02-01T15:30:00.000");
+//    t.alice.act<actions::distribute>(250);
+//    test_chain::user_context{t.chain, {{"eden.gm"_n, "board.major"_n}, {"ahab"_n, "active"_n}}}
+//        .act<actions::rename>("alice"_n, "ahab"_n);
+//    t.write_dfuse_history("dfuse-test-election.json");
+//    CompareFile{"test-election"}.write_events(t.chain).compare();
+// }
 
 /*
 TEST_CASE("contract-auth")
