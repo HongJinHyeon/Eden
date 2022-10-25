@@ -810,6 +810,21 @@ TEST_CASE("election reschedule")
    expect(t.alice.trace<actions::electprocess>(100), "No voters");
 }
 
+TEST_CASE("election rescheduled for July 2022")
+{
+   eden_tester t;
+   t.genesis();
+   t.electdonate_all();
+   t.skip_to("2022-06-29T23:59:59.500");
+   expect(t.eden_gm.trace<actions::electsettime>(s2t("2022-07-09T13:00:00.000")), "New election time is too close");
+   t.skip_to("2022-06-30T00:00:00.000");
+   t.eden_gm.trace<actions::electsettime>(s2t("2022-07-09T13:00:00.000"));
+   t.skip_to("2022-07-02T23:59:59.500");
+   t.eden_gm.trace<actions::electsettime>(s2t("2022-07-09T13:00:00.000"));
+   t.skip_to("2022-07-03T00:00:00.000");
+   expect(t.eden_gm.trace<actions::electsettime>(s2t("2022-07-09T13:00:00.000")), "New election time is too close");
+}
+
 TEST_CASE("mid-election induction")
 {
    eden_tester t;
@@ -964,21 +979,17 @@ TEST_CASE("budget distribution")
    t.alice.act<actions::distribute>(5000);
    CHECK(t.get_total_budget() == s2a("6.7266 EOS"));
 
-   //diff
-   expect(t.alice.trace<actions::fundtransfer>("alice"_n, s2t("2020-04-04T15:30:00.000"), 1,
+   expect(t.alice.trace<actions::fundtransfer>("alice"_n, s2t("2020-05-04T15:30:00.000"), 1,
                                                "egeon"_n, s2a("1.8001 EOS"), "memo"),
           "insufficient balance");
-   //diff
-   expect(t.alice.trace<actions::fundtransfer>("alice"_n, s2t("2020-04-04T15:30:00.000"), 1,
+   expect(t.alice.trace<actions::fundtransfer>("alice"_n, s2t("2020-05-04T15:30:00.000"), 1,
                                                "egeon"_n, s2a("-1.0000 EOS"), "memo"),
           "amount must be positive");
-   //diff
-   expect(t.alice.trace<actions::fundtransfer>("alice"_n, s2t("2020-04-04T15:30:00.000"), 1,
+   expect(t.alice.trace<actions::fundtransfer>("alice"_n, s2t("2020-05-04T15:30:00.000"), 1,
                                                "ahab"_n, s2a("1.0000 EOS"), "memo"),
           "member ahab not found");
 
-   //diff
-   t.alice.act<actions::fundtransfer>("alice"_n, s2t("2020-04-04T15:30:00.000"), 1, "egeon"_n,
+   t.alice.act<actions::fundtransfer>("alice"_n, s2t("2020-05-04T15:30:00.000"), 1, "egeon"_n,
                                       s2a("1.8000 EOS"), "memo");
    CHECK(get_eden_account("egeon"_n)->balance() == s2a("1.8000 EOS"));
 
@@ -1004,24 +1015,21 @@ TEST_CASE("budget distribution triggered by donation")
    t.run_election();
    t.distribute(1);
    CHECK(t.get_total_budget() == s2a("5.0000 EOS"));
-   //diff
-   t.skip_to("2020-05-04T15:29:59.500");
+   t.skip_to("2020-05-03T15:29:59.500");
    t.set_balance(s2a("100.0000 EOS"));
    t.chain.start_block();
    CHECK(t.get_total_budget() == s2a("5.0000 EOS"));
    t.eosio_token.act<token::actions::transfer>("eosio.token"_n, "eden.gm"_n, s2a("5.0000 EOS"),
                                                "memo");
-   CHECK(t.get_total_budget() == s2a("10.0000 EOS"));
-   //diff
-   t.skip_to("2020-06-03T15:30:00.0000");
+   CHECK(t.get_total_budget() == s2a("5.0000 EOS"));
+   t.skip_to("2020-06-02T15:30:00.0000");
    t.eosio_token.act<token::actions::transfer>("eosio.token"_n, "eden.gm"_n, s2a("5.0000 EOS"),
                                                "memo");
-   CHECK(t.get_total_budget() == s2a("15.0000 EOS"));
-   //diff
-   t.skip_to("2020-07-03T15:30:00.0000");
+   CHECK(t.get_total_budget() == s2a("10.2500 EOS"));
+   t.skip_to("2020-07-02T15:30:00.0000");
    t.eosio_token.act<token::actions::transfer>("eosio.token"_n, "eden.gm"_n, s2a("5.0000 EOS"),
                                                "memo");
-   CHECK(t.get_total_budget() == s2a("20.0000 EOS"));
+   CHECK(t.get_total_budget() == s2a("15.4875 EOS"));
 }
 
 TEST_CASE("budget distribution minimum period")
@@ -1090,11 +1098,11 @@ TEST_CASE("budget distribution min")
    t.set_balance(s2a("1236.0000 EOS"));
    t.run_election();
    t.set_balance(s2a("0.0020 EOS"));
-   t.skip_to("2020-05-04T15:30:00.000");
+   t.skip_to("2020-08-03T15:30:00.000");
    t.distribute();
    std::map<eosio::block_timestamp, eosio::asset> expected{
-       {s2t("2020-04-04T15:30:00.000"), s2a("61.8000 EOS")},
-       {s2t("2020-05-04T15:30:00.000"), s2a("0.0001 EOS")}};
+       {s2t("2020-07-04T15:30:00.000"), s2a("61.8000 EOS")},
+       {s2t("2020-08-03T15:30:00.000"), s2a("0.0001 EOS")}};
    CHECK(t.get_budgets_by_period() == expected);
 }
 
@@ -1107,12 +1115,12 @@ TEST_CASE("budget adjustment on resignation")
    t.set_balance(s2a("36.0000 EOS"));
    t.run_election();
    t.set_balance(s2a("1000.0000 EOS"));
-   t.skip_to("2020-06-03T15:30:00.000");
+   t.skip_to("2020-09-02T15:30:00.000");
    // alice is satoshi, and receives the whole budget
    t.alice.act<actions::resign>("alice"_n);
    std::map<eosio::block_timestamp, eosio::asset> expected{};
    CHECK(t.get_budgets_by_period() == expected);
-   t.skip_to("2020-07-03T15:30:00.000");
+   t.skip_to("2020-10-02T15:30:00.000");
    t.distribute();
    CHECK(t.get_budgets_by_period() == expected);
    CHECK(accounts{"eden.gm"_n, "owned"_n}.get_account("master"_n)->balance() ==
@@ -1149,6 +1157,7 @@ TEST_CASE("multi budget adjustment on resignation")
    expected.insert({s2t("2020-07-03T15:30:00.000"), s2a("10.5028 EOS")});
    CHECK(t.get_budgets_by_period() == expected);
 }
+
 
 TEST_CASE("bylaws")
 {
