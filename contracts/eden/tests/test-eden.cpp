@@ -517,218 +517,218 @@ TEST_CASE("renaming")
    CHECK(get_eden_membership("ahab"_n).representative() == "ahab"_n);
 }
 
-TEST_CASE("auction")
-{
-   eden_tester t;
-   t.genesis();
-   t.ahab.act<token::actions::transfer>("ahab"_n, eden::atomic_market_account, s2a("10.0000 EOS"),
-                                        "deposit");
-   t.ahab.act<atomicmarket::actions::auctionbid>("ahab"_n, 1, s2a("10.0000 EOS"), eosio::name{});
-   t.chain.start_block(7 * 24 * 60 * 60 * 1000);
-   t.chain.start_block();
-   t.ahab.act<atomicmarket::actions::auctclaimbuy>(1);
-   t.eden_gm.act<atomicmarket::actions::auctclaimsel>(1);
-}
+// TEST_CASE("auction")
+// {
+//    eden_tester t;
+//    t.genesis();
+//    t.ahab.act<token::actions::transfer>("ahab"_n, eden::atomic_market_account, s2a("10.0000 EOS"),
+//                                         "deposit");
+//    t.ahab.act<atomicmarket::actions::auctionbid>("ahab"_n, 1, s2a("10.0000 EOS"), eosio::name{});
+//    t.chain.start_block(7 * 24 * 60 * 60 * 1000);
+//    t.chain.start_block();
+//    t.ahab.act<atomicmarket::actions::auctclaimbuy>(1);
+//    t.eden_gm.act<atomicmarket::actions::auctclaimsel>(1);
+// }
 
-TEST_CASE("auction batch claim")
-{
-   eden_tester t;
-   t.genesis();
-   t.ahab.act<token::actions::transfer>("ahab"_n, eden::atomic_market_account, s2a("10.0000 EOS"),
-                                        "deposit");
-   t.ahab.act<atomicmarket::actions::auctionbid>("ahab"_n, 1, s2a("10.0000 EOS"), eosio::name{});
-   t.chain.start_block(7 * 24 * 60 * 60 * 1000);
-   t.chain.start_block();
-   t.ahab.act<atomicmarket::actions::auctclaimbuy>(1);
-   auto old_balance = get_token_balance("eden.gm"_n);
-   t.eden_gm.act<actions::gc>(42);
-   auto new_balance = get_token_balance("eden.gm"_n);
-   // 0.5 EOS left deposited in atomicmarket
-   // 0.1 EOS to each of the maker and taker marketplaces
-   CHECK(new_balance - old_balance == s2a("9.3000 EOS"));
-}
+// TEST_CASE("auction batch claim")
+// {
+//    eden_tester t;
+//    t.genesis();
+//    t.ahab.act<token::actions::transfer>("ahab"_n, eden::atomic_market_account, s2a("10.0000 EOS"),
+//                                         "deposit");
+//    t.ahab.act<atomicmarket::actions::auctionbid>("ahab"_n, 1, s2a("10.0000 EOS"), eosio::name{});
+//    t.chain.start_block(7 * 24 * 60 * 60 * 1000);
+//    t.chain.start_block();
+//    t.ahab.act<atomicmarket::actions::auctclaimbuy>(1);
+//    auto old_balance = get_token_balance("eden.gm"_n);
+//    t.eden_gm.act<actions::gc>(42);
+//    auto new_balance = get_token_balance("eden.gm"_n);
+//    // 0.5 EOS left deposited in atomicmarket
+//    // 0.1 EOS to each of the maker and taker marketplaces
+//    CHECK(new_balance - old_balance == s2a("9.3000 EOS"));
+// }
 
-TEST_CASE("auction migration")
-{
-   eden_tester t;
-   t.genesis();
-   t.eden_gm.act<actions::unmigrate>();
-   t.ahab.act<token::actions::transfer>("ahab"_n, eden::atomic_market_account, s2a("10.0000 EOS"),
-                                        "deposit");
-   t.ahab.act<atomicmarket::actions::auctionbid>("ahab"_n, 1, s2a("10.0000 EOS"), eosio::name{});
-   t.chain.start_block(7 * 24 * 60 * 60 * 1000);
-   t.chain.start_block();
-   t.ahab.act<atomicmarket::actions::auctclaimbuy>(1);
-   auto old_balance = get_token_balance("eden.gm"_n);
-   expect(t.eden_gm.trace<actions::gc>(42), "Nothing to do");
-   while (true)
-   {
-      t.chain.start_block();
-      auto trace = t.eden_gm.trace<actions::migrate>(1);
-      if (trace.except)
-      {
-         expect(trace, "Nothing to do");
-         break;
-      }
-   }
-   t.eden_gm.act<actions::gc>(42);
-   auto new_balance = get_token_balance("eden.gm"_n);
-   // 0.5 EOS left deposited in atomicmarket
-   // 0.1 EOS to each of the maker and taker marketplaces
-   CHECK(new_balance - old_balance == s2a("9.3000 EOS"));
-}
+// TEST_CASE("auction migration")
+// {
+//    eden_tester t;
+//    t.genesis();
+//    t.eden_gm.act<actions::unmigrate>();
+//    t.ahab.act<token::actions::transfer>("ahab"_n, eden::atomic_market_account, s2a("10.0000 EOS"),
+//                                         "deposit");
+//    t.ahab.act<atomicmarket::actions::auctionbid>("ahab"_n, 1, s2a("10.0000 EOS"), eosio::name{});
+//    t.chain.start_block(7 * 24 * 60 * 60 * 1000);
+//    t.chain.start_block();
+//    t.ahab.act<atomicmarket::actions::auctclaimbuy>(1);
+//    auto old_balance = get_token_balance("eden.gm"_n);
+//    expect(t.eden_gm.trace<actions::gc>(42), "Nothing to do");
+//    while (true)
+//    {
+//       t.chain.start_block();
+//       auto trace = t.eden_gm.trace<actions::migrate>(1);
+//       if (trace.except)
+//       {
+//          expect(trace, "Nothing to do");
+//          break;
+//       }
+//    }
+//    t.eden_gm.act<actions::gc>(42);
+//    auto new_balance = get_token_balance("eden.gm"_n);
+//    // 0.5 EOS left deposited in atomicmarket
+//    // 0.1 EOS to each of the maker and taker marketplaces
+//    CHECK(new_balance - old_balance == s2a("9.3000 EOS"));
+// }
 
-TEST_CASE("induction gc")
-{
-   eden_tester t;
-   t.genesis();
+// TEST_CASE("induction gc")
+// {
+//    eden_tester t;
+//    t.genesis();
 
-   auto test_accounts = make_names(38);
-   t.create_accounts(test_accounts);
+//    auto test_accounts = make_names(38);
+//    t.create_accounts(test_accounts);
 
-   // induct some members
-   for (std::size_t i = 0; i < 34; ++i)
-   {
-      t.chain.start_block();  // don't run out of cpu
-      auto account = test_accounts.at(i);
-      auto induction_id = i + 4;
-      t.alice.act<actions::inductinit>(induction_id, "alice"_n, account,
-                                       std::vector{"pip"_n, "egeon"_n});
-      t.finish_induction(induction_id, "alice"_n, account, {"pip"_n, "egeon"_n});
-   }
-   CHECK(members("eden.gm"_n).stats().active_members == 37);
-   CHECK(members("eden.gm"_n).stats().pending_members == 0);
+//    // induct some members
+//    for (std::size_t i = 0; i < 34; ++i)
+//    {
+//       t.chain.start_block();  // don't run out of cpu
+//       auto account = test_accounts.at(i);
+//       auto induction_id = i + 4;
+//       t.alice.act<actions::inductinit>(induction_id, "alice"_n, account,
+//                                        std::vector{"pip"_n, "egeon"_n});
+//       t.finish_induction(induction_id, "alice"_n, account, {"pip"_n, "egeon"_n});
+//    }
+//    CHECK(members("eden.gm"_n).stats().active_members == 37);
+//    CHECK(members("eden.gm"_n).stats().pending_members == 0);
 
-   // clear the auctions
-   t.chain.start_block(8 * 24 * 60 * 60 * 1000);
-   t.alice.act<actions::gc>(64);
+//    // clear the auctions
+//    t.chain.start_block(8 * 24 * 60 * 60 * 1000);
+//    t.alice.act<actions::gc>(64);
 
-   for (std::size_t i = 0; i <= 2; ++i)
-   {
-      // many inductions for the same invitee
-      t.chain.start_block();
-      auto member_idx = i + 34;
-      auto invitee = test_accounts.at(34 + i);
-      uint64_t base_induction_id = 34 + 4 + i * 64;
-      for (std::size_t j = 0; j < 32 + i; ++j)
-      {
-         auto inviter = test_accounts.at(j);
-         auto induction_id = base_induction_id + j;
-         t.chain.as(inviter).act<actions::inductinit>(induction_id, inviter, invitee,
-                                                      std::vector{"pip"_n, "egeon"_n});
-      }
-   }
+//    for (std::size_t i = 0; i <= 2; ++i)
+//    {
+//       // many inductions for the same invitee
+//       t.chain.start_block();
+//       auto member_idx = i + 34;
+//       auto invitee = test_accounts.at(34 + i);
+//       uint64_t base_induction_id = 34 + 4 + i * 64;
+//       for (std::size_t j = 0; j < 32 + i; ++j)
+//       {
+//          auto inviter = test_accounts.at(j);
+//          auto induction_id = base_induction_id + j;
+//          t.chain.as(inviter).act<actions::inductinit>(induction_id, inviter, invitee,
+//                                                       std::vector{"pip"_n, "egeon"_n});
+//       }
+//    }
 
-   expect(t.alice.trace<actions::gc>(32),
-          "Nothing to do");  // lots of invites; none are available for gc
+//    expect(t.alice.trace<actions::gc>(32),
+//           "Nothing to do");  // lots of invites; none are available for gc
 
-   // Complete some invites
-   for (std::size_t i = 0; i <= 2; ++i)
-   {
-      t.chain.start_block();
-      auto member_idx = i + 34;
-      auto invitee = test_accounts.at(34 + i);
-      uint64_t base_induction_id = 34 + 4 + i * 64;
-      t.finish_induction(base_induction_id, test_accounts.at(0), invitee, {"pip"_n, "egeon"_n});
-      CHECK(members("eden.gm"_n).stats().active_members == 37 + i + 1);
-      CHECK(members("eden.gm"_n).stats().pending_members == 2 - i);
-   }
+//    // Complete some invites
+//    for (std::size_t i = 0; i <= 2; ++i)
+//    {
+//       t.chain.start_block();
+//       auto member_idx = i + 34;
+//       auto invitee = test_accounts.at(34 + i);
+//       uint64_t base_induction_id = 34 + 4 + i * 64;
+//       t.finish_induction(base_induction_id, test_accounts.at(0), invitee, {"pip"_n, "egeon"_n});
+//       CHECK(members("eden.gm"_n).stats().active_members == 37 + i + 1);
+//       CHECK(members("eden.gm"_n).stats().pending_members == 2 - i);
+//    }
 
-   CHECK(get_table_size<eden::induction_table_type>() == 1);
-   CHECK(get_table_size<eden::endorsement_table_type>() == 3);
-   CHECK(get_table_size<eden::endorsed_induction_table_type>() == 0);
-   CHECK(get_table_size<eden::induction_gc_table_type>() > 0);
+//    CHECK(get_table_size<eden::induction_table_type>() == 1);
+//    CHECK(get_table_size<eden::endorsement_table_type>() == 3);
+//    CHECK(get_table_size<eden::endorsed_induction_table_type>() == 0);
+//    CHECK(get_table_size<eden::induction_gc_table_type>() > 0);
 
-   t.ahab.act<actions::gc>(32);  // ahab is not a member, but gc needs no permissions
+//    t.ahab.act<actions::gc>(32);  // ahab is not a member, but gc needs no permissions
 
-   // clear the auctions
-   t.chain.start_block(8 * 24 * 60 * 60 * 1000);
-   t.alice.act<actions::gc>(64);
+//    // clear the auctions
+//    t.chain.start_block(8 * 24 * 60 * 60 * 1000);
+//    t.alice.act<actions::gc>(64);
 
-   CHECK(get_table_size<eden::induction_table_type>() == 0);
-   CHECK(get_table_size<eden::endorsement_table_type>() == 0);
-   CHECK(get_table_size<eden::endorsed_induction_table_type>() == 0);
-   CHECK(get_table_size<eden::induction_gc_table_type>() == 0);
+//    CHECK(get_table_size<eden::induction_table_type>() == 0);
+//    CHECK(get_table_size<eden::endorsement_table_type>() == 0);
+//    CHECK(get_table_size<eden::endorsed_induction_table_type>() == 0);
+//    CHECK(get_table_size<eden::induction_gc_table_type>() == 0);
 
-   // An expired invitation
-   t.alice.act<actions::inductinit>(42, "alice"_n, test_accounts.at(37),
-                                    std::vector{"pip"_n, "egeon"_n});
-   t.chain.start_block(1000 * 60 * 60 * 24 * 7);
-   expect(t.alice.trace<actions::gc>(32), "Nothing to do");
-   t.chain.start_block();
-   t.alice.act<actions::gc>(32);
+//    // An expired invitation
+//    t.alice.act<actions::inductinit>(42, "alice"_n, test_accounts.at(37),
+//                                     std::vector{"pip"_n, "egeon"_n});
+//    t.chain.start_block(1000 * 60 * 60 * 24 * 7);
+//    expect(t.alice.trace<actions::gc>(32), "Nothing to do");
+//    t.chain.start_block();
+//    t.alice.act<actions::gc>(32);
 
-   CHECK(get_table_size<eden::induction_table_type>() == 0);
-   CHECK(get_table_size<eden::endorsement_table_type>() == 0);
-   CHECK(get_table_size<eden::endorsed_induction_table_type>() == 0);
-   CHECK(get_table_size<eden::induction_gc_table_type>() == 0);
+//    CHECK(get_table_size<eden::induction_table_type>() == 0);
+//    CHECK(get_table_size<eden::endorsement_table_type>() == 0);
+//    CHECK(get_table_size<eden::endorsed_induction_table_type>() == 0);
+//    CHECK(get_table_size<eden::induction_gc_table_type>() == 0);
 
-   CHECK(members("eden.gm"_n).stats().active_members == 40);
-   CHECK(members("eden.gm"_n).stats().pending_members == 0);
-}
+//    CHECK(members("eden.gm"_n).stats().active_members == 40);
+//    CHECK(members("eden.gm"_n).stats().pending_members == 0);
+// }
 
-TEST_CASE("induction cancelling")
-{
-   eden_tester t;
-   t.genesis();
+// TEST_CASE("induction cancelling")
+// {
+//    eden_tester t;
+//    t.genesis();
 
-   // inviter can cancel
-   t.alice.act<actions::inductinit>(101, "alice"_n, "bertie"_n, std::vector{"pip"_n, "egeon"_n});
-   t.alice.act<actions::inductcancel>("alice"_n, 101);
-   CHECK(get_table_size<eden::induction_table_type>() == 0);
+//    // inviter can cancel
+//    t.alice.act<actions::inductinit>(101, "alice"_n, "bertie"_n, std::vector{"pip"_n, "egeon"_n});
+//    t.alice.act<actions::inductcancel>("alice"_n, 101);
+//    CHECK(get_table_size<eden::induction_table_type>() == 0);
 
-   // invitee can cancel
-   t.alice.act<actions::inductinit>(102, "alice"_n, "bertie"_n, std::vector{"pip"_n, "egeon"_n});
-   t.bertie.act<actions::inductcancel>("bertie"_n, 102);
-   CHECK(get_table_size<eden::induction_table_type>() == 0);
+//    // invitee can cancel
+//    t.alice.act<actions::inductinit>(102, "alice"_n, "bertie"_n, std::vector{"pip"_n, "egeon"_n});
+//    t.bertie.act<actions::inductcancel>("bertie"_n, 102);
+//    CHECK(get_table_size<eden::induction_table_type>() == 0);
 
-   // endorser can cancel
-   t.alice.act<actions::inductinit>(103, "alice"_n, "bertie"_n, std::vector{"pip"_n, "egeon"_n});
-   t.pip.act<actions::inductcancel>("pip"_n, 103);
-   CHECK(get_table_size<eden::induction_table_type>() == 0);
+//    // endorser can cancel
+//    t.alice.act<actions::inductinit>(103, "alice"_n, "bertie"_n, std::vector{"pip"_n, "egeon"_n});
+//    t.pip.act<actions::inductcancel>("pip"_n, 103);
+//    CHECK(get_table_size<eden::induction_table_type>() == 0);
 
-   t.alice.act<actions::inductinit>(104, "alice"_n, "bertie"_n, std::vector{"pip"_n, "egeon"_n});
-   expect(t.ahab.trace<actions::inductcancel>("ahab"_n, 104),
-          "Induction can only be canceled by an endorser or the invitee itself");
-   CHECK(get_table_size<eden::induction_table_type>() == 1);
-   CHECK(get_eden_membership("bertie"_n).status() == eden::member_status::pending_membership);
-}
+//    t.alice.act<actions::inductinit>(104, "alice"_n, "bertie"_n, std::vector{"pip"_n, "egeon"_n});
+//    expect(t.ahab.trace<actions::inductcancel>("ahab"_n, 104),
+//           "Induction can only be canceled by an endorser or the invitee itself");
+//    CHECK(get_table_size<eden::induction_table_type>() == 1);
+//    CHECK(get_eden_membership("bertie"_n).status() == eden::member_status::pending_membership);
+// }
 
-TEST_CASE("deposit and spend")
-{
-   eden_tester t;
-   t.eden_gm.act<actions::genesis>(
-       "Eden", eosio::symbol("EOS", 4), s2a("10.0000 EOS"),
-       std::vector{"alice"_n, "pip"_n, "egeon"_n}, "QmTYqoPYf7DiVebTnvwwFdTgsYXg2RnuPrt8uddjfW2kHS",
-       attribute_map{}, s2a("1.0000 EOS"), 7 * 24 * 60 * 60, "", 6, "15:30");
-   expect(t.alice.trace<token::actions::transfer>("alice"_n, "eden.gm"_n, s2a("10.0000 OTHER"),
-                                                  "memo"),
-          "token must be a valid 4,EOS");
-   expect(
-       t.alice.trace<token::actions::transfer>("alice"_n, "eden.gm"_n, s2a("9.9999 EOS"), "memo"),
-       "insufficient deposit to open an account");
-   CHECK(get_eden_account("alice"_n) == std::nullopt);
-   t.alice.act<token::actions::transfer>("alice"_n, "eden.gm"_n, s2a("10.0000 EOS"), "memo");
-   CHECK(get_eden_account("alice"_n) != std::nullopt);
-   CHECK(get_eden_account("alice"_n)->balance() == s2a("10.0000 EOS"));
-   CHECK(get_token_balance("alice"_n) == s2a("990.0000 EOS"));
+// TEST_CASE("deposit and spend")
+// {
+//    eden_tester t;
+//    t.eden_gm.act<actions::genesis>(
+//        "Eden", eosio::symbol("EOS", 4), s2a("10.0000 EOS"),
+//        std::vector{"alice"_n, "pip"_n, "egeon"_n}, "QmTYqoPYf7DiVebTnvwwFdTgsYXg2RnuPrt8uddjfW2kHS",
+//        attribute_map{}, s2a("1.0000 EOS"), 7 * 24 * 60 * 60, "", 6, "15:30");
+//    expect(t.alice.trace<token::actions::transfer>("alice"_n, "eden.gm"_n, s2a("10.0000 OTHER"),
+//                                                   "memo"),
+//           "token must be a valid 4,EOS");
+//    expect(
+//        t.alice.trace<token::actions::transfer>("alice"_n, "eden.gm"_n, s2a("9.9999 EOS"), "memo"),
+//        "insufficient deposit to open an account");
+//    CHECK(get_eden_account("alice"_n) == std::nullopt);
+//    t.alice.act<token::actions::transfer>("alice"_n, "eden.gm"_n, s2a("10.0000 EOS"), "memo");
+//    CHECK(get_eden_account("alice"_n) != std::nullopt);
+//    CHECK(get_eden_account("alice"_n)->balance() == s2a("10.0000 EOS"));
+//    CHECK(get_token_balance("alice"_n) == s2a("990.0000 EOS"));
 
-   expect(t.pip.trace<actions::withdraw>("pip"_n, s2a("10.0000 EOS")), "insufficient balance");
-   expect(t.pip.trace<actions::withdraw>("alice"_n, s2a("10.0000 EOS")),
-          "missing authority of alice");
-   expect(t.alice.trace<actions::withdraw>("alice"_n, s2a("10.0001 EOS")), "insufficient balance");
-   CHECK(get_eden_account("alice"_n)->balance() == s2a("10.0000 EOS"));
-   CHECK(get_token_balance("alice"_n) == s2a("990.0000 EOS"));
-   t.alice.act<actions::withdraw>("alice"_n, s2a("4.0000 EOS"));
-   CHECK(get_eden_account("alice"_n)->balance() == s2a("6.0000 EOS"));
-   CHECK(get_token_balance("alice"_n) == s2a("994.0000 EOS"));
-   t.alice.act<actions::withdraw>("alice"_n, s2a("6.0000 EOS"));
-   CHECK(get_eden_account("alice"_n) == std::nullopt);
-   CHECK(get_token_balance("alice"_n) == s2a("1000.0000 EOS"));
-   t.alice.act<token::actions::transfer>("alice"_n, "eden.gm"_n, s2a("100.0000 EOS"), "donate");
-   CHECK(get_eden_account("alice"_n) == std::nullopt);
-   CHECK(get_token_balance("alice"_n) == s2a("900.0000 EOS"));
-}
+//    expect(t.pip.trace<actions::withdraw>("pip"_n, s2a("10.0000 EOS")), "insufficient balance");
+//    expect(t.pip.trace<actions::withdraw>("alice"_n, s2a("10.0000 EOS")),
+//           "missing authority of alice");
+//    expect(t.alice.trace<actions::withdraw>("alice"_n, s2a("10.0001 EOS")), "insufficient balance");
+//    CHECK(get_eden_account("alice"_n)->balance() == s2a("10.0000 EOS"));
+//    CHECK(get_token_balance("alice"_n) == s2a("990.0000 EOS"));
+//    t.alice.act<actions::withdraw>("alice"_n, s2a("4.0000 EOS"));
+//    CHECK(get_eden_account("alice"_n)->balance() == s2a("6.0000 EOS"));
+//    CHECK(get_token_balance("alice"_n) == s2a("994.0000 EOS"));
+//    t.alice.act<actions::withdraw>("alice"_n, s2a("6.0000 EOS"));
+//    CHECK(get_eden_account("alice"_n) == std::nullopt);
+//    CHECK(get_token_balance("alice"_n) == s2a("1000.0000 EOS"));
+//    t.alice.act<token::actions::transfer>("alice"_n, "eden.gm"_n, s2a("100.0000 EOS"), "donate");
+//    CHECK(get_eden_account("alice"_n) == std::nullopt);
+//    CHECK(get_token_balance("alice"_n) == s2a("900.0000 EOS"));
+// }
 
 // TEST_CASE("election config")
 // {
