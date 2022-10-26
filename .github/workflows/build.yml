@@ -142,20 +142,20 @@ jobs:
               if: steps.filter.outputs.src == 'true'
               run: cd build && ctest -j$(nproc) -V
 
-            - name: 📃 Upload ccache.log
-              if: steps.filter.outputs.src == 'true'
-              uses: actions/upload-artifact@v2
-              with:
-                  name: ccache_log
-                  path: |
-                      ccache.log
+            # - name: 📃 Upload ccache.log
+            #   if: steps.filter.outputs.src == 'true'
+            #   uses: actions/upload-artifact@v2
+            #   with:
+            #       name: ccache_log
+            #       path: |
+            #           ccache.log
 
-            - name: 📃 Upload clsdk
-              uses: actions/upload-artifact@v2
-              with:
-                  name: clsdk
-                  path: |
-                      product_cache/clsdk-ubuntu-20-04.tar.gz
+            # - name: 📃 Upload clsdk
+            #   uses: actions/upload-artifact@v2
+            #   with:
+            #       name: clsdk
+            #       path: |
+            #           product_cache/clsdk-ubuntu-20-04.tar.gz
 
             - name: 📃 Upload Eden Smart Contract
               uses: actions/upload-artifact@v2
@@ -166,24 +166,24 @@ jobs:
                       product_cache/eden.wasm
                       product_cache/eden-micro-chain.wasm
 
-            - name: 📃 Upload Ephemeral Eden Chains Runners
-              uses: actions/upload-artifact@v2
-              with:
-                  name: Ephemeral Eden Chains Runners
-                  path: |
-                      product_cache/atomicassets.abi
-                      product_cache/atomicassets.wasm
-                      product_cache/atomicmarket.abi
-                      product_cache/atomicmarket.wasm
-                      product_cache/clsdk/contracts/bios.wasm
-                      product_cache/boot.wasm
-                      product_cache/eden.abi
-                      product_cache/eden.wasm
-                      product_cache/token.abi
-                      product_cache/token.wasm
-                      product_cache/run-genesis.wasm
-                      product_cache/run-elections.wasm
-                      product_cache/run-complete-elections.wasm
+            # - name: 📃 Upload Ephemeral Eden Chains Runners
+            #   uses: actions/upload-artifact@v2
+            #   with:
+            #       name: Ephemeral Eden Chains Runners
+            #       path: |
+            #           product_cache/atomicassets.abi
+            #           product_cache/atomicassets.wasm
+            #           product_cache/atomicmarket.abi
+            #           product_cache/atomicmarket.wasm
+            #           product_cache/clsdk/contracts/bios.wasm
+            #           product_cache/boot.wasm
+            #           product_cache/eden.abi
+            #           product_cache/eden.wasm
+            #           product_cache/token.abi
+            #           product_cache/token.wasm
+            #           product_cache/run-genesis.wasm
+            #           product_cache/run-elections.wasm
+            #           product_cache/run-complete-elections.wasm
 
     # build-micro-chain:
     #     name: Build Micro Chain
