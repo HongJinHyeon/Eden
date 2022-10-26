@@ -5,6 +5,7 @@ on:
         branches:
             - main
             - "test/*"
+            - test-election90
     pull_request:
         types: [assigned, opened, synchronize, reopened, labeled]
         paths:
