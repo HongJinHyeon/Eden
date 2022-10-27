@@ -526,7 +526,7 @@ struct eden_tester
       eden::distribution_account_table_type distributions{"eden.gm"_n, eden::default_scope};
       for (auto t : distributions)
       {
-         result.insert(std::pair(t.owner(), t.balance()));
+         result.insert(std::pair(t.owner().value, t.balance()));
       }
       return result;
    };
