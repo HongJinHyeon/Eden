@@ -509,14 +509,24 @@ struct eden_tester
       return result;
    };
 
+   auto get_budgets_by_period_nosum() const
+   {
+      std::map<eosio::block_timestamp, eosio::asset> result;
+      eden::distribution_account_table_type distributions{"eden.gm"_n, eden::default_scope};
+      for (auto t : distributions)
+      {
+         result.insert(std::pair(t.distribution_time(), t.balance()));
+      }
+      return result;
+   };
+
    auto get_budgets_by_period_nameandasset() const
    {
       std::map<eosio::name, eosio::asset> result;
       eden::distribution_account_table_type distributions{"eden.gm"_n, eden::default_scope};
       for (auto t : distributions)
       {
-         auto [iter, _] = result.insert(std::pair(t.owner(), s2a("0.0000 EOS")));
-         iter->second += t.balance();
+         result.insert(std::pair(t.owner(), t.balance()));
       }
       return result;
    };

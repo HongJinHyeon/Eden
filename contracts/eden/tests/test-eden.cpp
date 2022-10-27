@@ -966,7 +966,7 @@ TEST_CASE("budget distribution")
 
    std::map<eosio::block_timestamp, eosio::asset> expected{
        {s2t("2020-04-04T15:30:00.000"), s2a("1.8000 EOS")}};
-   CHECK(t.get_budgets_by_period() == expected);
+   CHECK(t.get_budgets_by_period_nosum() == expected);
 
    // expect(t.alice.trace<actions::fundtransfer>("alice"_n, s2t("2020-04-04T15:30:00.000"), 1,
    //                                             "egeon"_n, s2a("1.8001 EOS"), "memo"),
