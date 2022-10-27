@@ -964,17 +964,17 @@ TEST_CASE("budget distribution")
    t.alice.act<actions::distribute>(5000);
    CHECK(t.get_total_budget() == s2a("6.7266 EOS"));
 
-   expect(t.alice.trace<actions::fundtransfer>("alice"_n, s2t("2020-05-04T15:30:00.000"), 1,
+   expect(t.alice.trace<actions::fundtransfer>("alice"_n, s2t("2020-04-04T15:30:00.000"), 1,
                                                "egeon"_n, s2a("1.8001 EOS"), "memo"),
           "insufficient balance");
-   expect(t.alice.trace<actions::fundtransfer>("alice"_n, s2t("2020-05-04T15:30:00.000"), 1,
+   expect(t.alice.trace<actions::fundtransfer>("alice"_n, s2t("2020-04-04T15:30:00.000"), 1,
                                                "egeon"_n, s2a("-1.0000 EOS"), "memo"),
           "amount must be positive");
-   expect(t.alice.trace<actions::fundtransfer>("alice"_n, s2t("2020-05-04T15:30:00.000"), 1,
+   expect(t.alice.trace<actions::fundtransfer>("alice"_n, s2t("2020-04-04T15:30:00.000"), 1,
                                                "ahab"_n, s2a("1.0000 EOS"), "memo"),
           "member ahab not found");
 
-   t.alice.act<actions::fundtransfer>("alice"_n, s2t("2020-05-04T15:30:00.000"), 1, "egeon"_n,
+   t.alice.act<actions::fundtransfer>("alice"_n, s2t("2020-04-04T15:30:00.000"), 1, "egeon"_n,
                                       s2a("1.8000 EOS"), "memo");
    CHECK(get_eden_account("egeon"_n)->balance() == s2a("1.8000 EOS"));
 
