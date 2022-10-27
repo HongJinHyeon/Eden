@@ -771,32 +771,32 @@ TEST_CASE("election config")
    }
 }
 
-// TEST_CASE("election")
-// {
-//    eden_tester t;
-//    t.genesis();
-//    t.electdonate_all();
-//    {
-//       eden::current_election_state_singleton state("eden.gm"_n, eden::default_scope);
-//       auto current = std::get<eden::current_election_state_registration_v1>(state.get());
-//       CHECK(eosio::convert_to_json(current.start_time) == "\"2020-07-04T15:30:00.000\"");
-//    }
-//    t.skip_to("2020-07-03T15:29:59.500");
-//    t.electseed(eosio::time_point_sec(0x5f009260u), "Cannot start seeding yet");
-//    t.chain.start_block();
-//    t.electseed(eosio::time_point_sec(0x5f009260u));
-//    t.skip_to("2020-07-04T15:29:59.500");
-//    expect(t.alice.trace<actions::electprocess>(1), "Seeding window is still open");
-//    t.chain.start_block();
-//    t.setup_election();
-//    CHECK(get_table_size<eden::vote_table_type>() == 0);
-//    eden::election_state_singleton results("eden.gm"_n, eden::default_scope);
-//    auto result = std::get<eden::election_state_v0>(results.get());
-//    // This is likely to change as it depends on the exact random number algorithm and seed
-//    CHECK(result.lead_representative == "egeon"_n);
-//    std::sort(result.board.begin(), result.board.end());
-//    CHECK(result.board == std::vector{"alice"_n, "egeon"_n, "pip"_n});
-// }
+TEST_CASE("election")
+{
+   eden_tester t;
+   t.genesis();
+   t.electdonate_all();
+   {
+      eden::current_election_state_singleton state("eden.gm"_n, eden::default_scope);
+      auto current = std::get<eden::current_election_state_registration_v1>(state.get());
+      CHECK(eosio::convert_to_json(current.start_time) == "\"2020-04-04T15:30:00.000\"");
+   }
+   t.skip_to("2020-04-03T15:29:59.500");
+   t.electseed(eosio::time_point_sec(0x5e883068u), "Cannot start seeding yet");
+   t.chain.start_block();
+   t.electseed(eosio::time_point_sec(0x5e883068u));
+   t.skip_to("2020-04-04T15:29:59.500");
+   expect(t.alice.trace<actions::electprocess>(1), "Seeding window is still open");
+   t.chain.start_block();
+   t.setup_election();
+   CHECK(get_table_size<eden::vote_table_type>() == 0);
+   eden::election_state_singleton results("eden.gm"_n, eden::default_scope);
+   auto result = std::get<eden::election_state_v0>(results.get());
+   // This is likely to change as it depends on the exact random number algorithm and seed
+   CHECK(result.lead_representative == "pip"_n);
+   std::sort(result.board.begin(), result.board.end());
+   CHECK(result.board == std::vector{"alice"_n, "egeon"_n, "pip"_n});
+}
 
 // TEST_CASE("election reschedule")
 // {
