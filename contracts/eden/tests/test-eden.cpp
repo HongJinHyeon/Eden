@@ -798,150 +798,150 @@ TEST_CASE("election")
    CHECK(result.board == std::vector{"alice"_n, "egeon"_n, "pip"_n});
 }
 
-// TEST_CASE("election reschedule")
-// {
-//    eden_tester t;
-//    t.genesis();
-//    t.electdonate_all();
-//    t.eden_gm.act<actions::electsettime>(s2t("2020-03-02T15:30:01.000"));
-//    t.skip_to(t.next_election_time().to_time_point() - eosio::days(1));
-//    t.electseed(t.next_election_time().to_time_point() - eosio::days(1));
-//    t.skip_to(t.next_election_time().to_time_point());
-//    expect(t.alice.trace<actions::electprocess>(100), "No voters");
-// }
+TEST_CASE("election reschedule")
+{
+   eden_tester t;
+   t.genesis();
+   t.electdonate_all();
+   t.eden_gm.act<actions::electsettime>(s2t("2020-03-02T15:30:01.000"));
+   t.skip_to(t.next_election_time().to_time_point() - eosio::days(1));
+   t.electseed(t.next_election_time().to_time_point() - eosio::days(1));
+   t.skip_to(t.next_election_time().to_time_point());
+   expect(t.alice.trace<actions::electprocess>(100), "No voters");
+}
 
-// TEST_CASE("mid-election induction")
-// {
-//    eden_tester t;
-//    bool has_bertie = false;
-//    t.genesis();
-//    t.electdonate_all();
-//    SECTION("pre-registration")
-//    {
-//       t.skip_to("2020-06-04T15:29:59.500");
-//       has_bertie = true;
-//       t.induct("bertie"_n);
-//    }
-//    SECTION("registration")
-//    {
-//       t.skip_to("2020-06-04T15:30:00.000");
-//       has_bertie = true;
-//       t.induct("bertie"_n);
-//    }
-//    t.skip_to("2020-07-03T15:30:00.000");
-//    SECTION("pre-seed")
-//    {
-//       has_bertie = true;
-//       t.induct("bertie"_n);
-//    }
-//    t.electseed(s2t("2020-07-03T15:30:00.000"));
-//    SECTION("post-seed")
-//    {
-//       has_bertie = true;
-//       t.induct("bertie"_n);
-//    }
-//    t.skip_to("2020-07-04T15:30:00.000");
-//    for (int i = 0;; ++i)
-//    {
-//       DYNAMIC_SECTION("electprocess" << i)
-//       {
-//          has_bertie = true;
-//          t.induct("bertie"_n);
-//       }
-//       auto trace = t.eden_gm.trace<actions::electprocess>(1);
-//       if (trace.except)
-//       {
-//          expect(trace, "Nothing to do");
-//          break;
-//       }
-//       t.chain.start_block();
-//    }
-//    eden::election_state_singleton results("eden.gm"_n, eden::default_scope);
-//    auto result = std::get<eden::election_state_v0>(results.get());
-//    std::sort(result.board.begin(), result.board.end());
-//    CHECK(result.board == std::vector{"alice"_n, "egeon"_n, "pip"_n});
+TEST_CASE("mid-election induction")
+{
+   eden_tester t;
+   bool has_bertie = false;
+   t.genesis();
+   t.electdonate_all();
+   SECTION("pre-registration")
+   {
+      t.skip_to("2020-03-04T15:29:59.500");
+      has_bertie = true;
+      t.induct("bertie"_n);
+   }
+   SECTION("registration")
+   {
+      t.skip_to("2020-03-04T15:30:00.000");
+      has_bertie = true;
+      t.induct("bertie"_n);
+   }
+   t.skip_to("2020-04-03T15:30:00.000");
+   SECTION("pre-seed")
+   {
+      has_bertie = true;
+      t.induct("bertie"_n);
+   }
+   t.electseed(s2t("2020-04-03T15:30:00.000"));
+   SECTION("post-seed")
+   {
+      has_bertie = true;
+      t.induct("bertie"_n);
+   }
+   t.skip_to("2020-04-04T15:30:00.000");
+   for (int i = 0;; ++i)
+   {
+      DYNAMIC_SECTION("electprocess" << i)
+      {
+         has_bertie = true;
+         t.induct("bertie"_n);
+      }
+      auto trace = t.eden_gm.trace<actions::electprocess>(1);
+      if (trace.except)
+      {
+         expect(trace, "Nothing to do");
+         break;
+      }
+      t.chain.start_block();
+   }
+   eden::election_state_singleton results("eden.gm"_n, eden::default_scope);
+   auto result = std::get<eden::election_state_v0>(results.get());
+   std::sort(result.board.begin(), result.board.end());
+   CHECK(result.board == std::vector{"alice"_n, "egeon"_n, "pip"_n});
 
-//    if (has_bertie)
-//    {
-//       CHECK(get_table_size<eden::member_table_type>() == 4);
-//       CHECK(get_eden_membership("bertie"_n).election_participation_status() ==
-//             eden::not_in_election);
-//    }
-//    else
-//    {
-//       CHECK(get_table_size<eden::member_table_type>() == 3);
-//    }
-//    CHECK(eden::members{"eden.gm"_n}.stats().ranks == std::vector<uint16_t>{2, 1});
-// }
+   if (has_bertie)
+   {
+      CHECK(get_table_size<eden::member_table_type>() == 4);
+      CHECK(get_eden_membership("bertie"_n).election_participation_status() ==
+            eden::not_in_election);
+   }
+   else
+   {
+      CHECK(get_table_size<eden::member_table_type>() == 3);
+   }
+   CHECK(eden::members{"eden.gm"_n}.stats().ranks == std::vector<uint16_t>{2, 1});
+}
 
-// TEST_CASE("election with multiple rounds")
-// {
-//    constexpr std::size_t num_accounts = 200;  // 10000 takes too long
-//    eden_tester t;
-//    t.genesis();
-//    t.eden_gm.act<actions::electsettime>(s2t("2020-07-04T15:30:00.000"));
-//    auto test_accounts = make_names(num_accounts - 3);
-//    t.create_accounts(test_accounts);
+TEST_CASE("election with multiple rounds")
+{
+   constexpr std::size_t num_accounts = 200;  // 10000 takes too long
+   eden_tester t;
+   t.genesis();
+   t.eden_gm.act<actions::electsettime>(s2t("2020-07-04T15:30:00.000"));
+   auto test_accounts = make_names(num_accounts - 3);
+   t.create_accounts(test_accounts);
 
-//    for (auto account : test_accounts)
-//    {
-//       t.chain.start_block();
-//       t.alice.act<actions::inductinit>(42, "alice"_n, account, std::vector{"pip"_n, "egeon"_n});
-//       t.finish_induction(42, "alice"_n, account, {"pip"_n, "egeon"_n});
-//    }
-//    t.electdonate_all();
-//    t.alice.act<actions::setencpubkey>("alice"_n, eosio::public_key{});
-//    t.pip.act<actions::setencpubkey>("pip"_n, eosio::public_key{});
-//    t.egeon.act<actions::setencpubkey>("egeon"_n, eosio::public_key{});
-//    for (auto account : test_accounts)
-//    {
-//       t.chain.start_block();
-//       t.chain.as(account).act<actions::setencpubkey>(account, eosio::public_key{});
-//    }
+   for (auto account : test_accounts)
+   {
+      t.chain.start_block();
+      t.alice.act<actions::inductinit>(42, "alice"_n, account, std::vector{"pip"_n, "egeon"_n});
+      t.finish_induction(42, "alice"_n, account, {"pip"_n, "egeon"_n});
+   }
+   t.electdonate_all();
+   t.alice.act<actions::setencpubkey>("alice"_n, eosio::public_key{});
+   t.pip.act<actions::setencpubkey>("pip"_n, eosio::public_key{});
+   t.egeon.act<actions::setencpubkey>("egeon"_n, eosio::public_key{});
+   for (auto account : test_accounts)
+   {
+      t.chain.start_block();
+      t.chain.as(account).act<actions::setencpubkey>(account, eosio::public_key{});
+   }
 
-//    t.skip_to("2020-07-03T15:30:00.000");
-//    t.electseed(eosio::time_point_sec(0x5f009260));
-//    t.skip_to("2020-07-04T15:30:00.000");
-//    t.setup_election();
+   t.skip_to("2020-07-03T15:30:00.000");
+   t.electseed(eosio::time_point_sec(0x5f009260));
+   t.skip_to("2020-07-04T15:30:00.000");
+   t.setup_election();
 
-//    uint8_t round = 0;
+   uint8_t round = 0;
 
-//    // With 200 members, there should be three rounds
-//    CHECK(get_table_size<eden::vote_table_type>() == 200);
-//    t.alice.act<actions::electmeeting>("alice"_n, 0,
-//                                       std::vector<eden::encrypted_key>{{}, {}, {}, {}},
-//                                       eosio::bytes{}, std::nullopt);
-//    t.generic_group_vote(t.get_current_groups(), round++);
-//    CHECK(get_table_size<eden::vote_table_type>() == 48);
-//    t.alice.act<actions::electvideo>(0, "alice"_n, "Qmb7WmZiSDXss5HfuKfoSf6jxTDrHzr8AoAUDeDMLNDuws");
-//    t.alice.act<actions::electmeeting>("alice"_n, 1,
-//                                       std::vector<eden::encrypted_key>{{}, {}, {}, {}},
-//                                       eosio::bytes{}, std::nullopt);
-//    t.generic_group_vote(t.get_current_groups(), round++);
-//    CHECK(get_table_size<eden::vote_table_type>() == 12);
-//    t.alice.act<actions::electmeeting>("alice"_n, 2,
-//                                       std::vector<eden::encrypted_key>{{}, {}, {}, {}},
-//                                       eosio::bytes{}, std::nullopt);
-//    t.generic_group_vote(t.get_current_groups(), round++);
-//    CHECK(get_table_size<eden::vote_table_type>() == 3);
-//    t.electseed(s2t("2020-07-04T19:30:00.000"));
-//    t.chain.start_block((15 * 60 + 30) * 60 * 1000);
-//    t.chain.start_block(2 * 60 * 60 * 1000);
-//    t.alice.act<actions::electprocess>(256);
-//    CHECK(get_table_size<eden::vote_table_type>() == 0);
-//    CHECK(get_table_size<eden::encrypted_data_table_type>("election"_n) == 0);
+   // With 200 members, there should be three rounds
+   CHECK(get_table_size<eden::vote_table_type>() == 200);
+   t.alice.act<actions::electmeeting>("alice"_n, 0,
+                                      std::vector<eden::encrypted_key>{{}, {}, {}, {}},
+                                      eosio::bytes{}, std::nullopt);
+   t.generic_group_vote(t.get_current_groups(), round++);
+   CHECK(get_table_size<eden::vote_table_type>() == 48);
+   t.alice.act<actions::electvideo>(0, "alice"_n, "Qmb7WmZiSDXss5HfuKfoSf6jxTDrHzr8AoAUDeDMLNDuws");
+   t.alice.act<actions::electmeeting>("alice"_n, 1,
+                                      std::vector<eden::encrypted_key>{{}, {}, {}, {}},
+                                      eosio::bytes{}, std::nullopt);
+   t.generic_group_vote(t.get_current_groups(), round++);
+   CHECK(get_table_size<eden::vote_table_type>() == 12);
+   t.alice.act<actions::electmeeting>("alice"_n, 2,
+                                      std::vector<eden::encrypted_key>{{}, {}, {}, {}},
+                                      eosio::bytes{}, std::nullopt);
+   t.generic_group_vote(t.get_current_groups(), round++);
+   CHECK(get_table_size<eden::vote_table_type>() == 3);
+   t.electseed(s2t("2020-07-04T19:30:00.000"));
+   t.chain.start_block((15 * 60 + 30) * 60 * 1000);
+   t.chain.start_block(2 * 60 * 60 * 1000);
+   t.alice.act<actions::electprocess>(256);
+   CHECK(get_table_size<eden::vote_table_type>() == 0);
+   CHECK(get_table_size<eden::encrypted_data_table_type>("election"_n) == 0);
 
-//    eden::election_state_singleton results("eden.gm"_n, eden::default_scope);
-//    auto result = std::get<eden::election_state_v0>(results.get());
-//    // alice wins at every level but the last, because everyone votes for the member with the lowest name
-//    CHECK(std::find(result.board.begin(), result.board.end(), "alice"_n) != result.board.end());
+   eden::election_state_singleton results("eden.gm"_n, eden::default_scope);
+   auto result = std::get<eden::election_state_v0>(results.get());
+   // alice wins at every level but the last, because everyone votes for the member with the lowest name
+   CHECK(std::find(result.board.begin(), result.board.end(), "alice"_n) != result.board.end());
 
-//    t.alice.act<actions::electvideo>(1, "alice"_n, "Qmb7WmZiSDXss5HfuKfoSf6jxTDrHzr8AoAUDeDMLNDuws");
-//    t.alice.act<actions::electvideo>(2, "alice"_n, "Qmb7WmZiSDXss5HfuKfoSf6jxTDrHzr8AoAUDeDMLNDuws");
+   t.alice.act<actions::electvideo>(1, "alice"_n, "Qmb7WmZiSDXss5HfuKfoSf6jxTDrHzr8AoAUDeDMLNDuws");
+   t.alice.act<actions::electvideo>(2, "alice"_n, "Qmb7WmZiSDXss5HfuKfoSf6jxTDrHzr8AoAUDeDMLNDuws");
 
-//    CHECK(members("eden.gm"_n).stats().ranks ==
-//          std::vector<uint16_t>{200 - 48, 48 - 12, 12 - 3, 3 - 1, 1});
-// }
+   CHECK(members("eden.gm"_n).stats().ranks ==
+         std::vector<uint16_t>{200 - 48, 48 - 12, 12 - 3, 3 - 1, 1});
+}
 
 // TEST_CASE("budget distribution")
 // {
