@@ -964,20 +964,20 @@ TEST_CASE("budget distribution")
    t.alice.act<actions::distribute>(5000);
    CHECK(t.get_total_budget() == s2a("6.7266 EOS"));
 
-   std::map<eosio::block_timestamp, eosio::asset> expected1{
-        {s2t("2020-04-04T15:30:00.000"), s2a("1.8000 EOS")},
-        {s2t("2020-05-04T15:30:00.000"), s2a("1.7100 EOS")},
-        {s2t("2020-06-03T15:30:00.000"), s2a("1.6245 EOS")},
-        {s2t("2020-07-03T15:30:00.000"), s2a("0.0514 EOS")},
-        {s2t("2020-07-04T15:30:00.000"), s2a("1.5407 EOS")}};
-   CHECK(t.get_budgets_by_period_nosum() == expected1);
+   // std::map<eosio::block_timestamp, eosio::asset> expected1{
+   //      {s2t("2020-04-04T15:30:00.000"), s2a("1.8000 EOS")},
+   //      {s2t("2020-05-04T15:30:00.000"), s2a("1.7100 EOS")},
+   //      {s2t("2020-06-03T15:30:00.000"), s2a("1.6245 EOS")},
+   //      {s2t("2020-07-03T15:30:00.000"), s2a("0.0514 EOS")},
+   //      {s2t("2020-07-04T15:30:00.000"), s2a("1.5407 EOS")}};
+   // CHECK(t.get_budgets_by_period_nosum() == expected1);
 
-   std::map<eosio::name, eosio::asset> expected2{
-       {"alice"_n, s2a("1.8000 EOS")}};
-   CHECK(t.get_budgets_by_period_nameandasset() == expected2);
+   // std::map<eosio::name, eosio::asset> expected{
+   //     {"alice"_n, s2a("1.8000 EOS")}};
+   // CHECK(t.get_budgets_by_period_nameandasset() == expected);
 
-   // expect(t.alice.trace<actions::fundtransfer>("alice"_n, s2t("2020-04-04T15:30:00.000"), 1,
-   //                                             "egeon"_n, s2a("1.8001 EOS"), "memo"),
+   expect(t.alice.trace<actions::fundtransfer>("alice"_n, s2t("2020-04-04T15:30:00.000"), 1,
+                                               "egeon"_n, s2a("1.8001 EOS"), "memo"),
    //        "insufficient balance");
    // expect(t.alice.trace<actions::fundtransfer>("alice"_n, s2t("2020-04-04T15:30:00.000"), 1,
    //                                             "egeon"_n, s2a("-1.0000 EOS"), "memo"),
