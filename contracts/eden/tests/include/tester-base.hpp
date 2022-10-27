@@ -511,7 +511,7 @@ struct eden_tester
 
    auto get_budgets_by_period_nameandasset() const
    {
-      std::map< std::vector<eosio::name> , eosio::asset> result;
+      std::map<eosio::name, eosio::asset> result;
       eden::distribution_account_table_type distributions{"eden.gm"_n, eden::default_scope};
       for (auto t : distributions)
       {
