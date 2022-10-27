@@ -964,9 +964,13 @@ TEST_CASE("budget distribution")
    t.alice.act<actions::distribute>(5000);
    CHECK(t.get_total_budget() == s2a("6.7266 EOS"));
 
-   expect(t.alice.trace<actions::fundtransfer>("alice"_n, s2t("2020-04-04T15:30:00.000"), 1,
-                                               "egeon"_n, s2a("1.8001 EOS"), "memo"),
-          "insufficient balance");
+   std::map<eosio::block_timestamp, eosio::asset> expected{
+       {s2t("2020-04-04T15:30:00.000"), s2a("1.8000 EOS")}};
+   CHECK(t.get_budgets_by_period() == expected);
+
+   // expect(t.alice.trace<actions::fundtransfer>("alice"_n, s2t("2020-04-04T15:30:00.000"), 1,
+   //                                             "egeon"_n, s2a("1.8001 EOS"), "memo"),
+   //        "insufficient balance");
    // expect(t.alice.trace<actions::fundtransfer>("alice"_n, s2t("2020-04-04T15:30:00.000"), 1,
    //                                             "egeon"_n, s2a("-1.0000 EOS"), "memo"),
    //        "amount must be positive");
