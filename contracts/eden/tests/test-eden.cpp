@@ -779,13 +779,13 @@ TEST_CASE("election")
    {
       eden::current_election_state_singleton state("eden.gm"_n, eden::default_scope);
       auto current = std::get<eden::current_election_state_registration_v1>(state.get());
-      CHECK(eosio::convert_to_json(current.start_time) == "\"2020-07-04T15:30:00.000\"");
+      CHECK(eosio::convert_to_json(current.start_time) == "\"2020-04-04T15:30:00.000\"");
    }
-   t.skip_to("2020-07-03T15:29:59.500");
-   t.electseed(eosio::time_point_sec(0x5f009260u), "Cannot start seeding yet");
+   t.skip_to("2020-04-03T15:29:59.500");
+   t.electseed(eosio::time_point_sec(0x5e883068u), "Cannot start seeding yet");
    t.chain.start_block();
-   t.electseed(eosio::time_point_sec(0x5f009260u));
-   t.skip_to("2020-07-04T15:29:59.500");
+   t.electseed(eosio::time_point_sec(0x5e883068u));
+   t.skip_to("2020-04-04T15:29:59.500");
    expect(t.alice.trace<actions::electprocess>(1), "Seeding window is still open");
    t.chain.start_block();
    t.setup_election();
@@ -793,7 +793,7 @@ TEST_CASE("election")
    eden::election_state_singleton results("eden.gm"_n, eden::default_scope);
    auto result = std::get<eden::election_state_v0>(results.get());
    // This is likely to change as it depends on the exact random number algorithm and seed
-   CHECK(result.lead_representative == "egeon"_n);
+   CHECK(result.lead_representative == "pip"_n);
    std::sort(result.board.begin(), result.board.end());
    CHECK(result.board == std::vector{"alice"_n, "egeon"_n, "pip"_n});
 }
@@ -818,29 +818,29 @@ TEST_CASE("mid-election induction")
    t.electdonate_all();
    SECTION("pre-registration")
    {
-      t.skip_to("2020-06-04T15:29:59.500");
+      t.skip_to("2020-03-04T15:29:59.500");
       has_bertie = true;
       t.induct("bertie"_n);
    }
    SECTION("registration")
    {
-      t.skip_to("2020-06-04T15:30:00.000");
+      t.skip_to("2020-03-04T15:30:00.000");
       has_bertie = true;
       t.induct("bertie"_n);
    }
-   t.skip_to("2020-07-03T15:30:00.000");
+   t.skip_to("2020-04-03T15:30:00.000");
    SECTION("pre-seed")
    {
       has_bertie = true;
       t.induct("bertie"_n);
    }
-   t.electseed(s2t("2020-07-03T15:30:00.000"));
+   t.electseed(s2t("2020-04-03T15:30:00.000"));
    SECTION("post-seed")
    {
       has_bertie = true;
       t.induct("bertie"_n);
    }
-   t.skip_to("2020-07-04T15:30:00.000");
+   t.skip_to("2020-04-04T15:30:00.000");
    for (int i = 0;; ++i)
    {
       DYNAMIC_SECTION("electprocess" << i)
@@ -953,16 +953,16 @@ TEST_CASE("budget distribution")
    t.alice.act<actions::distribute>(250);
    CHECK(t.get_total_budget() == s2a("1.8000 EOS"));
    // Skip forward to the next distribution
-   t.skip_to("2020-08-03T15:29:59.500");
+   t.skip_to("2020-05-04T15:29:59.500");
    expect(t.alice.trace<actions::distribute>(250), "Nothing to do");
    t.chain.start_block();
    t.alice.act<actions::distribute>(250);
    CHECK(t.get_total_budget() == s2a("3.5100 EOS"));
    // Skip into the next election
-   t.skip_to("2021-01-02T15:30:00.000");
+   t.skip_to("2020-07-04T15:30:00.000");
    t.alice.act<actions::distribute>(1);
    t.alice.act<actions::distribute>(5000);
-   CHECK(t.get_total_budget() == s2a("10.9435 EOS"));
+   CHECK(t.get_total_budget() == s2a("6.7266 EOS"));
 
    // std::map<eosio::block_timestamp, eosio::asset> expected1{
    //      {s2t("2020-04-04T15:30:00.000"), s2a("1.8000 EOS")},
@@ -972,18 +972,11 @@ TEST_CASE("budget distribution")
    //      {s2t("2020-07-04T15:30:00.000"), s2a("1.5407 EOS")}};
    // CHECK(t.get_budgets_by_period_nosum() == expected1);
 
-      std::map<eosio::block_timestamp, eosio::asset> expected1{
-        {s2t("2020-07-04T15:30:00.000"), s2a("1.8000 EOS")},
-        {s2t("2020-08-03T15:30:00.000"), s2a("1.7100 EOS")},
-        {s2t("2020-09-02T15:30:00.000"), s2a("1.6245 EOS")},
-        {s2t("2020-09-02T15:30:00.000"), s2a("0.0514 EOS")}};
-   CHECK(t.get_budgets_by_period_nosum() == expected1);
-
    // std::map<eosio::name, eosio::asset> expected{
    //     {"alice"_n, s2a("1.8000 EOS")}};
    // CHECK(t.get_budgets_by_period_nameandasset() == expected);
 
-    t.alice.act<actions::fundtransfer>("alice"_n, s2t("2020-07-04T15:30:00.000"), 1, "egeon"_n,
+    t.pip.act<actions::fundtransfer>("pip"_n, s2t("2020-04-04T15:30:00.000"), 1, "egeon"_n,
                                       s2a("1.8000 EOS"), "memo");
    CHECK(get_eden_account("egeon"_n)->balance() == s2a("1.8000 EOS"));
 
