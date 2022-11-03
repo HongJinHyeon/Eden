@@ -1045,7 +1045,7 @@ TEST_CASE("budget distribution")
    t.egeon.act<actions::fundtransfer>("egeon"_n, s2t("2020-04-04T15:30:00.000"), 1, "alice"_n,
                                       s2a("1.8000 EOS"), "memo");
 
-   CHECK(get_eden_account("alice"_n)->balance() == s2a("1.8000 EOS"));
+   CHECK(get_eden_account("egeon"_n)->balance() == s2a("0.8000 EOS"));
 
    expect(t.egeon.trace<actions::usertransfer>("egeon"_n, "ahab"_n, s2a("10.0000 EOS"), "memo"),
           "member ahab not found");
