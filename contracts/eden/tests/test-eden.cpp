@@ -480,817 +480,828 @@ TEST_CASE("resignation")
    CHECK(members{"eden.gm"_n}.is_new_member("alice"_n));
 }
 
-// TEST_CASE("board resignation")
-// {
-//    eden_tester t;
-//    t.genesis();
-//    t.run_election();
-//    t.induct_n(4);
-//    t.alice.act<actions::resign>("alice"_n);
-//    t.egeon.act<actions::resign>("egeon"_n);
-//    t.pip.act<actions::resign>("pip"_n);
-// }
-
-// TEST_CASE("renaming")
-// {
-//    eden_tester t;
-//    t.genesis();
-//    auto distribution_time = t.next_election_time();
-//    t.run_election();
-//    t.alice.act<actions::distribute>(100);
-//    t.alice.act<actions::fundtransfer>("alice"_n, distribution_time, 1, "alice"_n, s2a("0.0001 EOS"),
-//                                       "");
-//    test_chain::user_context{t.chain, {{"eden.gm"_n, "board.major"_n}, {"ahab"_n, "active"_n}}}
-//        .act<actions::rename>("alice"_n, "ahab"_n);
-
-//    expect(t.alice.trace<actions::withdraw>("alice"_n, s2a("0.0001 EOS")), "insufficient balance");
-//    t.ahab.act<actions::withdraw>("ahab"_n, s2a("0.0001 EOS"));
-
-//    t.chain.start_block();
-//    expect(t.alice.trace<actions::fundtransfer>("alice"_n, distribution_time, 1, "alice"_n,
-//                                                s2a("0.0001 EOS"), ""),
-//           "member alice not found");
-//    t.ahab.act<actions::fundtransfer>("ahab"_n, distribution_time, 1, "ahab"_n, s2a("0.0001 EOS"),
-//                                      "");
-
-//    CHECK(get_eden_membership("pip"_n).representative() == "ahab"_n);
-//    CHECK(get_eden_membership("ahab"_n).representative() == "ahab"_n);
-// }
-
-// TEST_CASE("auction")
-// {
-//    eden_tester t;
-//    t.genesis();
-//    t.ahab.act<token::actions::transfer>("ahab"_n, eden::atomic_market_account, s2a("10.0000 EOS"),
-//                                         "deposit");
-//    t.ahab.act<atomicmarket::actions::auctionbid>("ahab"_n, 1, s2a("10.0000 EOS"), eosio::name{});
-//    t.chain.start_block(7 * 24 * 60 * 60 * 1000);
-//    t.chain.start_block();
-//    t.ahab.act<atomicmarket::actions::auctclaimbuy>(1);
-//    t.eden_gm.act<atomicmarket::actions::auctclaimsel>(1);
-// }
-
-// TEST_CASE("auction batch claim")
-// {
-//    eden_tester t;
-//    t.genesis();
-//    t.ahab.act<token::actions::transfer>("ahab"_n, eden::atomic_market_account, s2a("10.0000 EOS"),
-//                                         "deposit");
-//    t.ahab.act<atomicmarket::actions::auctionbid>("ahab"_n, 1, s2a("10.0000 EOS"), eosio::name{});
-//    t.chain.start_block(7 * 24 * 60 * 60 * 1000);
-//    t.chain.start_block();
-//    t.ahab.act<atomicmarket::actions::auctclaimbuy>(1);
-//    auto old_balance = get_token_balance("eden.gm"_n);
-//    t.eden_gm.act<actions::gc>(42);
-//    auto new_balance = get_token_balance("eden.gm"_n);
-//    // 0.5 EOS left deposited in atomicmarket
-//    // 0.1 EOS to each of the maker and taker marketplaces
-//    CHECK(new_balance - old_balance == s2a("9.3000 EOS"));
-// }
-
-// TEST_CASE("auction migration")
-// {
-//    eden_tester t;
-//    t.genesis();
-//    t.eden_gm.act<actions::unmigrate>();
-//    t.ahab.act<token::actions::transfer>("ahab"_n, eden::atomic_market_account, s2a("10.0000 EOS"),
-//                                         "deposit");
-//    t.ahab.act<atomicmarket::actions::auctionbid>("ahab"_n, 1, s2a("10.0000 EOS"), eosio::name{});
-//    t.chain.start_block(7 * 24 * 60 * 60 * 1000);
-//    t.chain.start_block();
-//    t.ahab.act<atomicmarket::actions::auctclaimbuy>(1);
-//    auto old_balance = get_token_balance("eden.gm"_n);
-//    expect(t.eden_gm.trace<actions::gc>(42), "Nothing to do");
-//    while (true)
-//    {
-//       t.chain.start_block();
-//       auto trace = t.eden_gm.trace<actions::migrate>(1);
-//       if (trace.except)
-//       {
-//          expect(trace, "Nothing to do");
-//          break;
-//       }
-//    }
-//    t.eden_gm.act<actions::gc>(42);
-//    auto new_balance = get_token_balance("eden.gm"_n);
-//    // 0.5 EOS left deposited in atomicmarket
-//    // 0.1 EOS to each of the maker and taker marketplaces
-//    CHECK(new_balance - old_balance == s2a("9.3000 EOS"));
-// }
-
-// TEST_CASE("induction gc")
-// {
-//    eden_tester t;
-//    t.genesis();
-
-//    auto test_accounts = make_names(38);
-//    t.create_accounts(test_accounts);
-
-//    // induct some members
-//    for (std::size_t i = 0; i < 34; ++i)
-//    {
-//       t.chain.start_block();  // don't run out of cpu
-//       auto account = test_accounts.at(i);
-//       auto induction_id = i + 4;
-//       t.alice.act<actions::inductinit>(induction_id, "alice"_n, account,
-//                                        std::vector{"pip"_n, "egeon"_n});
-//       t.finish_induction(induction_id, "alice"_n, account, {"pip"_n, "egeon"_n});
-//    }
-//    CHECK(members("eden.gm"_n).stats().active_members == 37);
-//    CHECK(members("eden.gm"_n).stats().pending_members == 0);
-
-//    // clear the auctions
-//    t.chain.start_block(8 * 24 * 60 * 60 * 1000);
-//    t.alice.act<actions::gc>(64);
-
-//    for (std::size_t i = 0; i <= 2; ++i)
-//    {
-//       // many inductions for the same invitee
-//       t.chain.start_block();
-//       auto member_idx = i + 34;
-//       auto invitee = test_accounts.at(34 + i);
-//       uint64_t base_induction_id = 34 + 4 + i * 64;
-//       for (std::size_t j = 0; j < 32 + i; ++j)
-//       {
-//          auto inviter = test_accounts.at(j);
-//          auto induction_id = base_induction_id + j;
-//          t.chain.as(inviter).act<actions::inductinit>(induction_id, inviter, invitee,
-//                                                       std::vector{"pip"_n, "egeon"_n});
-//       }
-//    }
-
-//    expect(t.alice.trace<actions::gc>(32),
-//           "Nothing to do");  // lots of invites; none are available for gc
-
-//    // Complete some invites
-//    for (std::size_t i = 0; i <= 2; ++i)
-//    {
-//       t.chain.start_block();
-//       auto member_idx = i + 34;
-//       auto invitee = test_accounts.at(34 + i);
-//       uint64_t base_induction_id = 34 + 4 + i * 64;
-//       t.finish_induction(base_induction_id, test_accounts.at(0), invitee, {"pip"_n, "egeon"_n});
-//       CHECK(members("eden.gm"_n).stats().active_members == 37 + i + 1);
-//       CHECK(members("eden.gm"_n).stats().pending_members == 2 - i);
-//    }
-
-//    CHECK(get_table_size<eden::induction_table_type>() == 1);
-//    CHECK(get_table_size<eden::endorsement_table_type>() == 3);
-//    CHECK(get_table_size<eden::endorsed_induction_table_type>() == 0);
-//    CHECK(get_table_size<eden::induction_gc_table_type>() > 0);
-
-//    t.ahab.act<actions::gc>(32);  // ahab is not a member, but gc needs no permissions
-
-//    // clear the auctions
-//    t.chain.start_block(8 * 24 * 60 * 60 * 1000);
-//    t.alice.act<actions::gc>(64);
-
-//    CHECK(get_table_size<eden::induction_table_type>() == 0);
-//    CHECK(get_table_size<eden::endorsement_table_type>() == 0);
-//    CHECK(get_table_size<eden::endorsed_induction_table_type>() == 0);
-//    CHECK(get_table_size<eden::induction_gc_table_type>() == 0);
-
-//    // An expired invitation
-//    t.alice.act<actions::inductinit>(42, "alice"_n, test_accounts.at(37),
-//                                     std::vector{"pip"_n, "egeon"_n});
-//    t.chain.start_block(1000 * 60 * 60 * 24 * 7);
-//    expect(t.alice.trace<actions::gc>(32), "Nothing to do");
-//    t.chain.start_block();
-//    t.alice.act<actions::gc>(32);
-
-//    CHECK(get_table_size<eden::induction_table_type>() == 0);
-//    CHECK(get_table_size<eden::endorsement_table_type>() == 0);
-//    CHECK(get_table_size<eden::endorsed_induction_table_type>() == 0);
-//    CHECK(get_table_size<eden::induction_gc_table_type>() == 0);
-
-//    CHECK(members("eden.gm"_n).stats().active_members == 40);
-//    CHECK(members("eden.gm"_n).stats().pending_members == 0);
-// }
-
-// TEST_CASE("induction cancelling")
-// {
-//    eden_tester t;
-//    t.genesis();
-
-//    // inviter can cancel
-//    t.alice.act<actions::inductinit>(101, "alice"_n, "bertie"_n, std::vector{"pip"_n, "egeon"_n});
-//    t.alice.act<actions::inductcancel>("alice"_n, 101);
-//    CHECK(get_table_size<eden::induction_table_type>() == 0);
-
-//    // invitee can cancel
-//    t.alice.act<actions::inductinit>(102, "alice"_n, "bertie"_n, std::vector{"pip"_n, "egeon"_n});
-//    t.bertie.act<actions::inductcancel>("bertie"_n, 102);
-//    CHECK(get_table_size<eden::induction_table_type>() == 0);
-
-//    // endorser can cancel
-//    t.alice.act<actions::inductinit>(103, "alice"_n, "bertie"_n, std::vector{"pip"_n, "egeon"_n});
-//    t.pip.act<actions::inductcancel>("pip"_n, 103);
-//    CHECK(get_table_size<eden::induction_table_type>() == 0);
-
-//    t.alice.act<actions::inductinit>(104, "alice"_n, "bertie"_n, std::vector{"pip"_n, "egeon"_n});
-//    expect(t.ahab.trace<actions::inductcancel>("ahab"_n, 104),
-//           "Induction can only be canceled by an endorser or the invitee itself");
-//    CHECK(get_table_size<eden::induction_table_type>() == 1);
-//    CHECK(get_eden_membership("bertie"_n).status() == eden::member_status::pending_membership);
-// }
-
-// TEST_CASE("deposit and spend")
-// {
-//    eden_tester t;
-//    t.eden_gm.act<actions::genesis>(
-//        "Eden", eosio::symbol("EOS", 4), s2a("10.0000 EOS"),
-//        std::vector{"alice"_n, "pip"_n, "egeon"_n}, "QmTYqoPYf7DiVebTnvwwFdTgsYXg2RnuPrt8uddjfW2kHS",
-//        attribute_map{}, s2a("1.0000 EOS"), 7 * 24 * 60 * 60, "", 6, "15:30");
-//    expect(t.alice.trace<token::actions::transfer>("alice"_n, "eden.gm"_n, s2a("10.0000 OTHER"),
-//                                                   "memo"),
-//           "token must be a valid 4,EOS");
-//    expect(
-//        t.alice.trace<token::actions::transfer>("alice"_n, "eden.gm"_n, s2a("9.9999 EOS"), "memo"),
-//        "insufficient deposit to open an account");
-//    CHECK(get_eden_account("alice"_n) == std::nullopt);
-//    t.alice.act<token::actions::transfer>("alice"_n, "eden.gm"_n, s2a("10.0000 EOS"), "memo");
-//    CHECK(get_eden_account("alice"_n) != std::nullopt);
-//    CHECK(get_eden_account("alice"_n)->balance() == s2a("10.0000 EOS"));
-//    CHECK(get_token_balance("alice"_n) == s2a("990.0000 EOS"));
-
-//    expect(t.pip.trace<actions::withdraw>("pip"_n, s2a("10.0000 EOS")), "insufficient balance");
-//    expect(t.pip.trace<actions::withdraw>("alice"_n, s2a("10.0000 EOS")),
-//           "missing authority of alice");
-//    expect(t.alice.trace<actions::withdraw>("alice"_n, s2a("10.0001 EOS")), "insufficient balance");
-//    CHECK(get_eden_account("alice"_n)->balance() == s2a("10.0000 EOS"));
-//    CHECK(get_token_balance("alice"_n) == s2a("990.0000 EOS"));
-//    t.alice.act<actions::withdraw>("alice"_n, s2a("4.0000 EOS"));
-//    CHECK(get_eden_account("alice"_n)->balance() == s2a("6.0000 EOS"));
-//    CHECK(get_token_balance("alice"_n) == s2a("994.0000 EOS"));
-//    t.alice.act<actions::withdraw>("alice"_n, s2a("6.0000 EOS"));
-//    CHECK(get_eden_account("alice"_n) == std::nullopt);
-//    CHECK(get_token_balance("alice"_n) == s2a("1000.0000 EOS"));
-//    t.alice.act<token::actions::transfer>("alice"_n, "eden.gm"_n, s2a("100.0000 EOS"), "donate");
-//    CHECK(get_eden_account("alice"_n) == std::nullopt);
-//    CHECK(get_token_balance("alice"_n) == s2a("900.0000 EOS"));
-// }
-
-// TEST_CASE("election config")
-// {
-//    auto verify_cfg = [](const auto& config, uint16_t num_participants) {
-//       INFO("participants: " << num_participants)
-//       if (num_participants < 1)
-//       {
-//          CHECK(config.empty());
-//       }
-//       else
-//       {
-//          CHECK(config.back().num_groups == 1);
-//          CHECK(config.front().num_participants == num_participants);
-//          for (std::size_t i = 0; i < config.size() - 1; ++i)
-//          {
-//             CHECK(config[i].num_groups == config[i + 1].num_participants);
-//          }
-//          // There are at most two group sizes, except for the last round
-//          std::set<uint16_t> group_sizes;
-//          auto early_rounds = config;
-//          early_rounds.pop_back();
-//          for (const auto& round_config : early_rounds)
-//          {
-//             group_sizes.insert(round_config.group_max_size());
-//             if (round_config.num_short_groups())
-//             {
-//                group_sizes.insert(round_config.group_max_size() - 1);
-//             }
-//          }
-//          CHECK(group_sizes.size() <= 2);
-//          if (group_sizes.size() == 2)
-//          {
-//             CHECK(*group_sizes.begin() + 1 == *(--group_sizes.end()));
-//          }
-//       }
-//    };
-//    for (uint16_t i = 0; i <= 10000; ++i)
-//    {
-//       verify_cfg(eden::make_election_config(i), i);
-//    }
-// }
-
-// TEST_CASE("election")
-// {
-//    eden_tester t;
-//    t.genesis();
-//    t.electdonate_all();
-//    {
-//       eden::current_election_state_singleton state("eden.gm"_n, eden::default_scope);
-//       auto current = std::get<eden::current_election_state_registration_v1>(state.get());
-//       CHECK(eosio::convert_to_json(current.start_time) == "\"2020-07-04T15:30:00.000\"");
-//    }
-//    t.skip_to("2020-07-03T15:29:59.500");
-//    t.electseed(eosio::time_point_sec(0x5f009260u), "Cannot start seeding yet");
-//    t.chain.start_block();
-//    t.electseed(eosio::time_point_sec(0x5f009260u));
-//    t.skip_to("2020-07-04T15:29:59.500");
-//    expect(t.alice.trace<actions::electprocess>(1), "Seeding window is still open");
-//    t.chain.start_block();
-//    t.setup_election();
-//    CHECK(get_table_size<eden::vote_table_type>() == 0);
-//    eden::election_state_singleton results("eden.gm"_n, eden::default_scope);
-//    auto result = std::get<eden::election_state_v0>(results.get());
-//    // This is likely to change as it depends on the exact random number algorithm and seed
-//    CHECK(result.lead_representative == "egeon"_n);
-//    std::sort(result.board.begin(), result.board.end());
-//    CHECK(result.board == std::vector{"alice"_n, "egeon"_n, "pip"_n});
-// }
-
-// TEST_CASE("election reschedule")
-// {
-//    eden_tester t;
-//    t.genesis();
-//    t.electdonate_all();
-//    t.eden_gm.act<actions::electsettime>(s2t("2020-03-02T15:30:01.000"));
-//    t.skip_to(t.next_election_time().to_time_point() - eosio::days(1));
-//    t.electseed(t.next_election_time().to_time_point() - eosio::days(1));
-//    t.skip_to(t.next_election_time().to_time_point());
-//    expect(t.alice.trace<actions::electprocess>(100), "No voters");
-// }
-
-// TEST_CASE("mid-election induction")
-// {
-//    eden_tester t;
-//    bool has_bertie = false;
-//    t.genesis();
-//    t.electdonate_all();
-//    SECTION("pre-registration")
-//    {
-//       t.skip_to("2020-06-04T15:29:59.500");
-//       has_bertie = true;
-//       t.induct("bertie"_n);
-//    }
-//    SECTION("registration")
-//    {
-//       t.skip_to("2020-06-04T15:30:00.000");
-//       has_bertie = true;
-//       t.induct("bertie"_n);
-//    }
-//    t.skip_to("2020-07-03T15:30:00.000");
-//    SECTION("pre-seed")
-//    {
-//       has_bertie = true;
-//       t.induct("bertie"_n);
-//    }
-//    t.electseed(s2t("2020-07-03T15:30:00.000"));
-//    SECTION("post-seed")
-//    {
-//       has_bertie = true;
-//       t.induct("bertie"_n);
-//    }
-//    t.skip_to("2020-07-04T15:30:00.000");
-//    for (int i = 0;; ++i)
-//    {
-//       DYNAMIC_SECTION("electprocess" << i)
-//       {
-//          has_bertie = true;
-//          t.induct("bertie"_n);
-//       }
-//       auto trace = t.eden_gm.trace<actions::electprocess>(1);
-//       if (trace.except)
-//       {
-//          expect(trace, "Nothing to do");
-//          break;
-//       }
-//       t.chain.start_block();
-//    }
-//    eden::election_state_singleton results("eden.gm"_n, eden::default_scope);
-//    auto result = std::get<eden::election_state_v0>(results.get());
-//    std::sort(result.board.begin(), result.board.end());
-//    CHECK(result.board == std::vector{"alice"_n, "egeon"_n, "pip"_n});
-
-//    if (has_bertie)
-//    {
-//       CHECK(get_table_size<eden::member_table_type>() == 4);
-//       CHECK(get_eden_membership("bertie"_n).election_participation_status() ==
-//             eden::not_in_election);
-//    }
-//    else
-//    {
-//       CHECK(get_table_size<eden::member_table_type>() == 3);
-//    }
-//    CHECK(eden::members{"eden.gm"_n}.stats().ranks == std::vector<uint16_t>{2, 1});
-// }
-
-// TEST_CASE("election with multiple rounds")
-// {
-//    constexpr std::size_t num_accounts = 200;  // 10000 takes too long
-//    eden_tester t;
-//    t.genesis();
-//    t.eden_gm.act<actions::electsettime>(s2t("2020-07-04T15:30:00.000"));
-//    auto test_accounts = make_names(num_accounts - 3);
-//    t.create_accounts(test_accounts);
-
-//    for (auto account : test_accounts)
-//    {
-//       t.chain.start_block();
-//       t.alice.act<actions::inductinit>(42, "alice"_n, account, std::vector{"pip"_n, "egeon"_n});
-//       t.finish_induction(42, "alice"_n, account, {"pip"_n, "egeon"_n});
-//    }
-//    t.electdonate_all();
-//    t.alice.act<actions::setencpubkey>("alice"_n, eosio::public_key{});
-//    t.pip.act<actions::setencpubkey>("pip"_n, eosio::public_key{});
-//    t.egeon.act<actions::setencpubkey>("egeon"_n, eosio::public_key{});
-//    for (auto account : test_accounts)
-//    {
-//       t.chain.start_block();
-//       t.chain.as(account).act<actions::setencpubkey>(account, eosio::public_key{});
-//    }
-
-//    t.skip_to("2020-07-03T15:30:00.000");
-//    t.electseed(eosio::time_point_sec(0x5f009260));
-//    t.skip_to("2020-07-04T15:30:00.000");
-//    t.setup_election();
-
-//    uint8_t round = 0;
-
-//    // With 200 members, there should be three rounds
-//    CHECK(get_table_size<eden::vote_table_type>() == 200);
-//    t.alice.act<actions::electmeeting>("alice"_n, 0,
-//                                       std::vector<eden::encrypted_key>{{}, {}, {}, {}},
-//                                       eosio::bytes{}, std::nullopt);
-//    t.generic_group_vote(t.get_current_groups(), round++);
-//    CHECK(get_table_size<eden::vote_table_type>() == 48);
-//    t.alice.act<actions::electvideo>(0, "alice"_n, "Qmb7WmZiSDXss5HfuKfoSf6jxTDrHzr8AoAUDeDMLNDuws");
-//    t.alice.act<actions::electmeeting>("alice"_n, 1,
-//                                       std::vector<eden::encrypted_key>{{}, {}, {}, {}},
-//                                       eosio::bytes{}, std::nullopt);
-//    t.generic_group_vote(t.get_current_groups(), round++);
-//    CHECK(get_table_size<eden::vote_table_type>() == 12);
-//    t.alice.act<actions::electmeeting>("alice"_n, 2,
-//                                       std::vector<eden::encrypted_key>{{}, {}, {}, {}},
-//                                       eosio::bytes{}, std::nullopt);
-//    t.generic_group_vote(t.get_current_groups(), round++);
-//    CHECK(get_table_size<eden::vote_table_type>() == 3);
-//    t.electseed(s2t("2020-07-04T19:30:00.000"));
-//    t.chain.start_block((15 * 60 + 30) * 60 * 1000);
-//    t.chain.start_block(2 * 60 * 60 * 1000);
-//    t.alice.act<actions::electprocess>(256);
-//    CHECK(get_table_size<eden::vote_table_type>() == 0);
-//    CHECK(get_table_size<eden::encrypted_data_table_type>("election"_n) == 0);
-
-//    eden::election_state_singleton results("eden.gm"_n, eden::default_scope);
-//    auto result = std::get<eden::election_state_v0>(results.get());
-//    // alice wins at every level but the last, because everyone votes for the member with the lowest name
-//    CHECK(std::find(result.board.begin(), result.board.end(), "alice"_n) != result.board.end());
-
-//    t.alice.act<actions::electvideo>(1, "alice"_n, "Qmb7WmZiSDXss5HfuKfoSf6jxTDrHzr8AoAUDeDMLNDuws");
-//    t.alice.act<actions::electvideo>(2, "alice"_n, "Qmb7WmZiSDXss5HfuKfoSf6jxTDrHzr8AoAUDeDMLNDuws");
-
-//    CHECK(members("eden.gm"_n).stats().ranks ==
-//          std::vector<uint16_t>{200 - 48, 48 - 12, 12 - 3, 3 - 1, 1});
-// }
-
-// TEST_CASE("budget distribution")
-// {
-//    eden_tester t;
-//    t.genesis();
-//    t.set_balance(s2a("36.0000 EOS"));
-//    t.run_election();
-
-//    t.alice.act<actions::distribute>(250);
-//    CHECK(t.get_total_budget() == s2a("1.8000 EOS"));
-//    // Skip forward to the next distribution
-//    t.skip_to("2020-08-03T15:29:59.500");
-//    expect(t.alice.trace<actions::distribute>(250), "Nothing to do");
-//    t.chain.start_block();
-//    t.alice.act<actions::distribute>(250);
-//    CHECK(t.get_total_budget() == s2a("3.5100 EOS"));
-//    // Skip into the next election
-//    t.skip_to("2021-01-02T15:30:00.000");
-//    t.alice.act<actions::distribute>(1);
-//    t.alice.act<actions::distribute>(5000);
-//    CHECK(t.get_total_budget() == s2a("10.9435 EOS"));
-
-//    expect(t.alice.trace<actions::fundtransfer>("alice"_n, s2t("2020-07-04T15:30:00.000"), 1,
-//                                                "egeon"_n, s2a("1.8001 EOS"), "memo"),
-//           "insufficient balance");
-//    expect(t.alice.trace<actions::fundtransfer>("alice"_n, s2t("2020-07-04T15:30:00.000"), 1,
-//                                                "egeon"_n, s2a("-1.0000 EOS"), "memo"),
-//           "amount must be positive");
-//    expect(t.alice.trace<actions::fundtransfer>("alice"_n, s2t("2020-07-04T15:30:00.000"), 1,
-//                                                "ahab"_n, s2a("1.0000 EOS"), "memo"),
-//           "member ahab not found");
-
-//    t.alice.act<actions::fundtransfer>("alice"_n, s2t("2020-07-04T15:30:00.000"), 1, "egeon"_n,
-//                                       s2a("1.8000 EOS"), "memo");
-//    CHECK(get_eden_account("egeon"_n)->balance() == s2a("1.8000 EOS"));
-
-//    expect(t.alice.trace<actions::usertransfer>("alice"_n, "ahab"_n, s2a("10.0000 EOS"), "memo"),
-//           "member ahab not found");
-//    t.ahab.act<token::actions::transfer>("ahab"_n, "eden.gm"_n, s2a("10.0000 EOS"), "memo");
-//    expect(t.ahab.trace<actions::usertransfer>("ahab"_n, "egeon"_n, s2a("10.0000 EOS"), "memo"),
-//           "member ahab not found");
-//    expect(t.alice.trace<actions::usertransfer>("alice"_n, "egeon"_n, s2a("-1.0000 EOS"), "memo"),
-//           "amount must be positive");
-//    t.alice.act<actions::usertransfer>("alice"_n, "egeon"_n, s2a("10.0000 EOS"), "memo");
-//    CHECK(get_eden_account("egeon"_n)->balance() == s2a("11.8000 EOS"));
-//    CHECK(get_eden_account("alice"_n)->balance() == s2a("80.0000 EOS"));
-//    CHECK(get_eden_account("ahab"_n)->balance() == s2a("10.0000 EOS"));
-// }
-
-// TEST_CASE("budget distribution triggered by donation")
-// {
-//    eden_tester t;
-//    t.genesis();
-//    t.electdonate_all();
-//    t.set_balance(s2a("100.0000 EOS"));
-//    t.run_election();
-//    t.distribute(1);
-//    CHECK(t.get_total_budget() == s2a("5.0000 EOS"));
-//    t.skip_to("2020-08-03T15:29:59.500");
-//    t.set_balance(s2a("100.0000 EOS"));
-//    t.chain.start_block();
-//    CHECK(t.get_total_budget() == s2a("5.0000 EOS"));
-//    t.eosio_token.act<token::actions::transfer>("eosio.token"_n, "eden.gm"_n, s2a("5.0000 EOS"),
-//                                                "memo");
-//    CHECK(t.get_total_budget() == s2a("10.0000 EOS"));
-//    t.skip_to("2020-09-02T15:30:00.0000");
-//    t.eosio_token.act<token::actions::transfer>("eosio.token"_n, "eden.gm"_n, s2a("5.0000 EOS"),
-//                                                "memo");
-//    CHECK(t.get_total_budget() == s2a("15.0000 EOS"));
-//    t.skip_to("2020-10-02T15:30:00.0000");
-//    t.eosio_token.act<token::actions::transfer>("eosio.token"_n, "eden.gm"_n, s2a("5.0000 EOS"),
-//                                                "memo");
-//    CHECK(t.get_total_budget() == s2a("20.0000 EOS"));
-// }
-
-// TEST_CASE("budget distribution minimum period")
-// {
-//    eden_tester t;
-//    t.genesis();
-//    t.set_balance(s2a("36.0000 EOS"));
-//    t.run_election();
-//    t.set_balance(s2a("100000.0000 EOS"));
-//    t.eden_gm.act<actions::electsettime>(s2t("2020-09-02T15:30:01.000"));
-//    t.electdonate_all();
-//    t.run_election();
-//    std::map<eosio::block_timestamp, eosio::asset> expected{
-//        {s2t("2020-07-04T15:30:00.000"), s2a("1.8000 EOS")},
-//        {s2t("2020-08-03T15:30:00.000"), s2a("5000.0000 EOS")},
-//        {s2t("2020-09-02T15:30:00.000"), s2a("0.0018 EOS")},
-//        {s2t("2020-09-02T15:30:01.000"), s2a("4749.9999 EOS")}};
-//    CHECK(t.get_budgets_by_period() == expected);
-// }
-
-// TEST_CASE("budget distribution exact")
-// {
-//    eden_tester t;
-//    t.genesis();
-//    t.set_balance(s2a("36.0000 EOS"));
-//    t.run_election();
-//    t.set_balance(s2a("1000.0000 EOS"));
-//    t.eden_gm.act<actions::electsettime>(s2t("2020-09-02T15:30:00.000"));
-//    t.run_election();
-//    std::map<eosio::block_timestamp, eosio::asset> expected{
-//        {s2t("2020-07-04T15:30:00.000"), s2a("1.8000 EOS")},
-//        {s2t("2020-08-03T15:30:00.000"), s2a("50.0000 EOS")},
-//        {s2t("2020-09-02T15:30:00.000"), s2a("47.5000 EOS")}};
-//    CHECK(t.get_budgets_by_period() == expected);
-// }
-
-// TEST_CASE("budget distribution underflow")
-// {
-//    eden_tester t;
-//    t.genesis();
-//    t.set_balance(s2a("36.0000 EOS"));
-//    t.run_election();
-//    t.set_balance(s2a("1000.0000 EOS"));
-//    t.eden_gm.act<actions::electsettime>(s2t("2020-09-02T15:30:01.000"));
-//    t.run_election();
-//    std::map<eosio::block_timestamp, eosio::asset> expected{
-//        {s2t("2020-07-04T15:30:00.000"), s2a("1.8000 EOS")},
-//        {s2t("2020-08-03T15:30:00.000"), s2a("50.0000 EOS")},
-//        {s2t("2020-09-02T15:30:01.000"), s2a("47.5000 EOS")}};
-//    CHECK(t.get_budgets_by_period() == expected);
-// }
-
-// #ifdef ENABLE_SET_TABLE_ROWS
-
-// TEST_CASE("budget distribution min")
-// {
-//    eden_tester t;
-//    t.genesis();
-//    auto members = make_names(100);
-//    t.create_accounts(members);
-//    for (auto a : members)
-//    {
-//       t.chain.start_block();
-//       t.induct(a);
-//    }
-//    t.set_balance(s2a("1236.0000 EOS"));
-//    t.run_election();
-//    t.set_balance(s2a("0.0020 EOS"));
-//    t.skip_to("2020-08-03T15:30:00.000");
-//    t.distribute();
-//    std::map<eosio::block_timestamp, eosio::asset> expected{
-//        {s2t("2020-07-04T15:30:00.000"), s2a("61.8000 EOS")},
-//        {s2t("2020-08-03T15:30:00.000"), s2a("0.0001 EOS")}};
-//    CHECK(t.get_budgets_by_period() == expected);
-// }
-
-// #endif
-
-// TEST_CASE("budget adjustment on resignation")
-// {
-//    eden_tester t;
-//    t.genesis();
-//    t.set_balance(s2a("36.0000 EOS"));
-//    t.run_election();
-//    t.set_balance(s2a("1000.0000 EOS"));
-//    t.skip_to("2020-09-02T15:30:00.000");
-//    // alice is satoshi, and receives the whole budget
-//    t.alice.act<actions::resign>("alice"_n);
-//    std::map<eosio::block_timestamp, eosio::asset> expected{};
-//    CHECK(t.get_budgets_by_period() == expected);
-//    t.skip_to("2020-10-02T15:30:00.000");
-//    t.distribute();
-//    CHECK(t.get_budgets_by_period() == expected);
-//    CHECK(accounts{"eden.gm"_n, "owned"_n}.get_account("master"_n)->balance() ==
-//          s2a("1001.8000 EOS"));
-// }
-
-// TEST_CASE("multi budget adjustment on resignation")
-// {
-//    eden_tester t;
-//    t.genesis();
-//    auto members = make_names(100);
-//    t.create_accounts(members);
-//    for (auto a : members)
-//    {
-//       t.chain.start_block();
-//       t.induct(a);
-//    }
-//    t.set_balance(s2a("1236.0000 EOS"));
-//    t.run_election();
-//    t.set_balance(s2a("10000.0000 EOS"));
-//    t.skip_to("2020-09-02T15:30:00.000");
-//    auto lead_representative =
-//        std::get<eden::election_state_v0>(
-//            eden::election_state_singleton{"eden.gm"_n, eden::default_scope}.get())
-//            .lead_representative;
-//    t.chain.as(lead_representative).act<actions::resign>(lead_representative);
-//    std::map<eosio::block_timestamp, eosio::asset> expected{
-//        {s2t("2020-07-04T15:30:00.000"), s2a("36.2560 EOS")},
-//        {s2t("2020-08-03T15:30:00.000"), s2a("293.3316 EOS")},
-//        {s2t("2020-09-02T15:30:00.000"), s2a("278.6656 EOS")}};
-//    CHECK(t.get_budgets_by_period() == expected);
-//    t.skip_to("2020-10-02T15:30:00.000");
-//    t.distribute();
-//    expected.insert({s2t("2020-10-02T15:30:00.000"), s2a("10.5028 EOS")});
-//    CHECK(t.get_budgets_by_period() == expected);
-// }
-
-// TEST_CASE("bylaws")
-// {
-//    eden_tester t;
-//    t.genesis();
-//    t.induct_n(3);
-//    t.run_election();
-//    auto state = std::get<eden::election_state_v0>(
-//        eden::election_state_singleton{"eden.gm"_n, eden::default_scope}.get());
-//    std::string bylaws = "xxx";
-//    auto bylaws_hash = eosio::sha256(bylaws.data(), bylaws.size());
-//    t.chain.as(state.lead_representative)
-//        .act<actions::bylawspropose>(state.lead_representative, bylaws);
-
-//    int i = 0;
-//    SECTION("basic")
-//    {
-//       for (auto board_member : state.board)
-//       {
-//          if (i++ == 5)
-//             break;
-//          t.chain.as(board_member).act<actions::bylawsapprove>(board_member, bylaws_hash);
-//       }
-//    }
-
-//    // Make sure that resigned members are not counted towards the limit
-//    SECTION("resign")
-//    {
-//       for (auto board_member : state.board)
-//       {
-//          if (board_member != state.lead_representative)
-//          {
-//             if (i++ >= 2)
-//             {
-//                t.chain.as(board_member).act<actions::bylawsapprove>(board_member, bylaws_hash);
-//             }
-//             else
-//             {
-//                t.chain.as(board_member).act<actions::bylawsapprove>(board_member, bylaws_hash);
-//                t.chain.as(board_member).act<actions::resign>(board_member);
-//             }
-//          }
-//       }
-//    }
-// }
-
-// TEST_CASE("accounting")
-// {
-//    eden_tester t;
-//    t.genesis();
-//    // should now have 30.0000 EOS, with a 90.0000 EOS deposit from alice
-//    CHECK(get_token_balance("eden.gm"_n) == s2a("120.0000 EOS"));
-// }
-
-// TEST_CASE("pre-genesis balance")
-// {
-//    eden_tester t{[&] {
-//       t.eosio_token.act<token::actions::transfer>("eosio.token"_n, "eden.gm"_n, s2a("3.1415 EOS"),
-//                                                   "");
-//    }};
-//    t.genesis();
-//    CHECK(get_token_balance("eden.gm"_n) == t.get_total_balance());
-// }
-
-// TEST_CASE("clearall")
-// {
-//    eden_tester t;
-//    t.genesis();
-//    t.eden_gm.act<actions::clearall>();
-//    t.chain.transact({{{"eden.gm"_n, "active"_n},
-//                       "eosio"_n,
-//                       "unlinkauth"_n,
-//                       std::tuple("eden.gm"_n, "eden.gm"_n, "rename"_n)}});
-//    t.chain.start_block();
-//    t.genesis();
-// }
-
-// TEST_CASE("account migration")
-// {
-//    eden_tester t;
-//    t.genesis();
-//    auto sum_accounts = [](eden::account_table_type& table) {
-//       auto total = s2a("0.0000 EOS");
-//       for (auto iter = table.begin(), end = table.end(); iter != end; ++iter)
-//       {
-//          CHECK(iter->balance().amount > 0);
-//          total += iter->balance();
-//       }
-//       return total;
-//    };
-
-//    {
-//       eden::account_table_type user_table{"eden.gm"_n, eden::default_scope};
-//       eden::account_table_type system_table{"eden.gm"_n, "owned"_n.value};
-//       CHECK(sum_accounts(user_table) + sum_accounts(system_table) ==
-//             get_token_balance("eden.gm"_n));
-//    }
-//    t.eden_gm.act<actions::unmigrate>();
-//    {
-//       eden::account_table_type user_table{"eden.gm"_n, eden::default_scope};
-//       eden::account_table_type system_table{"eden.gm"_n, "owned"_n.value};
-//       CHECK(sum_accounts(system_table) == s2a("0.0000 EOS"));
-//    }
-//    expect(t.alice.trace<actions::donate>("alice"_n, s2a("0.4200 EOS")), "must be migrated");
-
-//    while (true)
-//    {
-//       t.chain.start_block();
-//       t.alice.act<token::actions::transfer>("alice"_n, "eden.gm"_n, s2a("15.0000 EOS"), "");
-//       t.alice.act<actions::withdraw>("alice"_n, s2a("14.0000 EOS"));
-//       auto trace = t.eden_gm.trace<actions::migrate>(1);
-//       if (trace.except)
-//       {
-//          expect(trace, "Nothing to do");
-//          break;
-//       }
-//    }
-//    {
-//       eden::account_table_type user_table{"eden.gm"_n, eden::default_scope};
-//       eden::account_table_type system_table{"eden.gm"_n, "owned"_n.value};
-//       CHECK(sum_accounts(user_table) + sum_accounts(system_table) ==
-//             get_token_balance("eden.gm"_n));
-//    }
-
-// #ifdef ENABLE_SET_TABLE_ROWS
-//    t.set_balance(s2a("0.0000 EOS"));
-//    t.alice.act<actions::withdraw>("alice"_n, get_eden_account("alice"_n)->balance());
-//    t.eden_gm.act<token::actions::close>("eden.gm"_n, eosio::symbol("EOS", 4));
-//    t.eden_gm.act<actions::unmigrate>();
-//    t.eden_gm.act<actions::migrate>(100);
-// #endif
-// }
-
-// #ifdef ENABLE_SET_TABLE_ROWS
-
-// TEST_CASE("settablerows")
-// {
-//    eden_tester t;
-//    t.genesis();
-//    t.eden_gm.act<actions::settablerows>(
-//        eosio::name(eden::default_scope),
-//        std::vector<eden::table_variant>{
-//            eden::current_election_state_registration_v1{s2t("2020-01-02T00:00:00.0000")}});
-//    eden::current_election_state_singleton state{"eden.gm"_n, eden::default_scope};
-//    auto value = std::get<eden::current_election_state_registration_v1>(state.get());
-//    CHECK(value.start_time.to_time_point() == s2t("2020-01-02T00:00:00.0000"));
-// }
-
-// #endif
+TEST_CASE("board resignation")
+{
+   eden_tester t;
+   t.genesis();
+   t.run_election();
+   t.induct_n(4);
+   t.alice.act<actions::resign>("alice"_n);
+   t.egeon.act<actions::resign>("egeon"_n);
+   t.pip.act<actions::resign>("pip"_n);
+}
+
+TEST_CASE("renaming")
+{
+   eden_tester t;
+   t.genesis();
+   auto distribution_time = t.next_election_time();
+   t.run_election();
+   t.egeon.act<actions::distribute>(100);
+   t.egeon.act<actions::fundtransfer>("egeon"_n, distribution_time, 1, "egeon"_n, s2a("0.0001 EOS"),
+                                      "");
+   test_chain::user_context{t.chain, {{"eden.gm"_n, "board.major"_n}, {"ahab"_n, "active"_n}}}
+       .act<actions::rename>("egeon"_n, "ahab"_n);
+
+   expect(t.egeon.trace<actions::withdraw>("egeon"_n, s2a("0.0001 EOS")), "insufficient balance");
+   t.ahab.act<actions::withdraw>("ahab"_n, s2a("0.0001 EOS"));
+
+   t.chain.start_block();
+   expect(t.egeon.trace<actions::fundtransfer>("egeon"_n, distribution_time, 1, "egeon"_n,
+                                               s2a("0.0001 EOS"), ""),
+          "member egeon not found");
+   t.ahab.act<actions::fundtransfer>("ahab"_n, distribution_time, 1, "ahab"_n, s2a("0.0001 EOS"),
+                                     "");
+
+   CHECK(get_eden_membership("pip"_n).representative() == "ahab"_n);
+   CHECK(get_eden_membership("ahab"_n).representative() == "ahab"_n);
+}
+
+TEST_CASE("auction")
+{
+   eden_tester t;
+   t.genesis();
+   t.ahab.act<token::actions::transfer>("ahab"_n, eden::atomic_market_account, s2a("10.0000 EOS"),
+                                        "deposit");
+   t.ahab.act<atomicmarket::actions::auctionbid>("ahab"_n, 1, s2a("10.0000 EOS"), eosio::name{});
+   t.chain.start_block(7 * 24 * 60 * 60 * 1000);
+   t.chain.start_block();
+   t.ahab.act<atomicmarket::actions::auctclaimbuy>(1);
+   t.eden_gm.act<atomicmarket::actions::auctclaimsel>(1);
+}
+
+TEST_CASE("auction batch claim")
+{
+   eden_tester t;
+   t.genesis();
+   t.ahab.act<token::actions::transfer>("ahab"_n, eden::atomic_market_account, s2a("10.0000 EOS"),
+                                        "deposit");
+   t.ahab.act<atomicmarket::actions::auctionbid>("ahab"_n, 1, s2a("10.0000 EOS"), eosio::name{});
+   t.chain.start_block(7 * 24 * 60 * 60 * 1000);
+   t.chain.start_block();
+   t.ahab.act<atomicmarket::actions::auctclaimbuy>(1);
+   auto old_balance = get_token_balance("eden.gm"_n);
+   t.eden_gm.act<actions::gc>(42);
+   auto new_balance = get_token_balance("eden.gm"_n);
+   // 0.5 EOS left deposited in atomicmarket
+   // 0.1 EOS to each of the maker and taker marketplaces
+   CHECK(new_balance - old_balance == s2a("9.3000 EOS"));
+}
+
+TEST_CASE("auction migration")
+{
+   eden_tester t;
+   t.genesis();
+   t.eden_gm.act<actions::unmigrate>();
+   t.ahab.act<token::actions::transfer>("ahab"_n, eden::atomic_market_account, s2a("10.0000 EOS"),
+                                        "deposit");
+   t.ahab.act<atomicmarket::actions::auctionbid>("ahab"_n, 1, s2a("10.0000 EOS"), eosio::name{});
+   t.chain.start_block(7 * 24 * 60 * 60 * 1000);
+   t.chain.start_block();
+   t.ahab.act<atomicmarket::actions::auctclaimbuy>(1);
+   auto old_balance = get_token_balance("eden.gm"_n);
+   expect(t.eden_gm.trace<actions::gc>(42), "Nothing to do");
+   while (true)
+   {
+      t.chain.start_block();
+      auto trace = t.eden_gm.trace<actions::migrate>(1);
+      if (trace.except)
+      {
+         expect(trace, "Nothing to do");
+         break;
+      }
+   }
+   t.eden_gm.act<actions::gc>(42);
+   auto new_balance = get_token_balance("eden.gm"_n);
+   // 0.5 EOS left deposited in atomicmarket
+   // 0.1 EOS to each of the maker and taker marketplaces
+   CHECK(new_balance - old_balance == s2a("9.3000 EOS"));
+}
+
+TEST_CASE("induction gc")
+{
+   eden_tester t;
+   t.genesis();
+
+   auto test_accounts = make_names(38);
+   t.create_accounts(test_accounts);
+
+   // induct some members
+   for (std::size_t i = 0; i < 34; ++i)
+   {
+      t.chain.start_block();  // don't run out of cpu
+      auto account = test_accounts.at(i);
+      auto induction_id = i + 4;
+      t.alice.act<actions::inductinit>(induction_id, "alice"_n, account,
+                                       std::vector{"pip"_n, "egeon"_n});
+      t.finish_induction(induction_id, "alice"_n, account, {"pip"_n, "egeon"_n});
+   }
+   CHECK(members("eden.gm"_n).stats().active_members == 37);
+   CHECK(members("eden.gm"_n).stats().pending_members == 0);
+
+   // clear the auctions
+   t.chain.start_block(8 * 24 * 60 * 60 * 1000);
+   t.alice.act<actions::gc>(64);
+
+   for (std::size_t i = 0; i <= 2; ++i)
+   {
+      // many inductions for the same invitee
+      t.chain.start_block();
+      auto member_idx = i + 34;
+      auto invitee = test_accounts.at(34 + i);
+      uint64_t base_induction_id = 34 + 4 + i * 64;
+      for (std::size_t j = 0; j < 32 + i; ++j)
+      {
+         auto inviter = test_accounts.at(j);
+         auto induction_id = base_induction_id + j;
+         t.chain.as(inviter).act<actions::inductinit>(induction_id, inviter, invitee,
+                                                      std::vector{"pip"_n, "egeon"_n});
+      }
+   }
+
+   expect(t.alice.trace<actions::gc>(32),
+          "Nothing to do");  // lots of invites; none are available for gc
+
+   // Complete some invites
+   for (std::size_t i = 0; i <= 2; ++i)
+   {
+      t.chain.start_block();
+      auto member_idx = i + 34;
+      auto invitee = test_accounts.at(34 + i);
+      uint64_t base_induction_id = 34 + 4 + i * 64;
+      t.finish_induction(base_induction_id, test_accounts.at(0), invitee, {"pip"_n, "egeon"_n});
+      CHECK(members("eden.gm"_n).stats().active_members == 37 + i + 1);
+      CHECK(members("eden.gm"_n).stats().pending_members == 2 - i);
+   }
+
+   CHECK(get_table_size<eden::induction_table_type>() == 1);
+   CHECK(get_table_size<eden::endorsement_table_type>() == 3);
+   CHECK(get_table_size<eden::endorsed_induction_table_type>() == 0);
+   CHECK(get_table_size<eden::induction_gc_table_type>() > 0);
+
+   t.ahab.act<actions::gc>(32);  // ahab is not a member, but gc needs no permissions
+
+   // clear the auctions
+   t.chain.start_block(8 * 24 * 60 * 60 * 1000);
+   t.alice.act<actions::gc>(64);
+
+   CHECK(get_table_size<eden::induction_table_type>() == 0);
+   CHECK(get_table_size<eden::endorsement_table_type>() == 0);
+   CHECK(get_table_size<eden::endorsed_induction_table_type>() == 0);
+   CHECK(get_table_size<eden::induction_gc_table_type>() == 0);
+
+   // An expired invitation
+   t.alice.act<actions::inductinit>(42, "alice"_n, test_accounts.at(37),
+                                    std::vector{"pip"_n, "egeon"_n});
+   t.chain.start_block(1000 * 60 * 60 * 24 * 7);
+   expect(t.alice.trace<actions::gc>(32), "Nothing to do");
+   t.chain.start_block();
+   t.alice.act<actions::gc>(32);
+
+   CHECK(get_table_size<eden::induction_table_type>() == 0);
+   CHECK(get_table_size<eden::endorsement_table_type>() == 0);
+   CHECK(get_table_size<eden::endorsed_induction_table_type>() == 0);
+   CHECK(get_table_size<eden::induction_gc_table_type>() == 0);
+
+   CHECK(members("eden.gm"_n).stats().active_members == 40);
+   CHECK(members("eden.gm"_n).stats().pending_members == 0);
+}
+
+TEST_CASE("induction cancelling")
+{
+   eden_tester t;
+   t.genesis();
+
+   // inviter can cancel
+   t.alice.act<actions::inductinit>(101, "alice"_n, "bertie"_n, std::vector{"pip"_n, "egeon"_n});
+   t.alice.act<actions::inductcancel>("alice"_n, 101);
+   CHECK(get_table_size<eden::induction_table_type>() == 0);
+
+   // invitee can cancel
+   t.alice.act<actions::inductinit>(102, "alice"_n, "bertie"_n, std::vector{"pip"_n, "egeon"_n});
+   t.bertie.act<actions::inductcancel>("bertie"_n, 102);
+   CHECK(get_table_size<eden::induction_table_type>() == 0);
+
+   // endorser can cancel
+   t.alice.act<actions::inductinit>(103, "alice"_n, "bertie"_n, std::vector{"pip"_n, "egeon"_n});
+   t.pip.act<actions::inductcancel>("pip"_n, 103);
+   CHECK(get_table_size<eden::induction_table_type>() == 0);
+
+   t.alice.act<actions::inductinit>(104, "alice"_n, "bertie"_n, std::vector{"pip"_n, "egeon"_n});
+   expect(t.ahab.trace<actions::inductcancel>("ahab"_n, 104),
+          "Induction can only be canceled by an endorser or the invitee itself");
+   CHECK(get_table_size<eden::induction_table_type>() == 1);
+   CHECK(get_eden_membership("bertie"_n).status() == eden::member_status::pending_membership);
+}
+
+TEST_CASE("deposit and spend")
+{
+   eden_tester t;
+   t.eden_gm.act<actions::genesis>(
+       "Eden", eosio::symbol("EOS", 4), s2a("10.0000 EOS"),
+       std::vector{"alice"_n, "pip"_n, "egeon"_n}, "QmTYqoPYf7DiVebTnvwwFdTgsYXg2RnuPrt8uddjfW2kHS",
+       attribute_map{}, s2a("1.0000 EOS"), 7 * 24 * 60 * 60, "", 6, "15:30");
+   expect(t.alice.trace<token::actions::transfer>("alice"_n, "eden.gm"_n, s2a("10.0000 OTHER"),
+                                                  "memo"),
+          "token must be a valid 4,EOS");
+   expect(
+       t.alice.trace<token::actions::transfer>("alice"_n, "eden.gm"_n, s2a("9.9999 EOS"), "memo"),
+       "insufficient deposit to open an account");
+   CHECK(get_eden_account("alice"_n) == std::nullopt);
+   t.alice.act<token::actions::transfer>("alice"_n, "eden.gm"_n, s2a("10.0000 EOS"), "memo");
+   CHECK(get_eden_account("alice"_n) != std::nullopt);
+   CHECK(get_eden_account("alice"_n)->balance() == s2a("10.0000 EOS"));
+   CHECK(get_token_balance("alice"_n) == s2a("990.0000 EOS"));
+
+   expect(t.pip.trace<actions::withdraw>("pip"_n, s2a("10.0000 EOS")), "insufficient balance");
+   expect(t.pip.trace<actions::withdraw>("alice"_n, s2a("10.0000 EOS")),
+          "missing authority of alice");
+   expect(t.alice.trace<actions::withdraw>("alice"_n, s2a("10.0001 EOS")), "insufficient balance");
+   CHECK(get_eden_account("alice"_n)->balance() == s2a("10.0000 EOS"));
+   CHECK(get_token_balance("alice"_n) == s2a("990.0000 EOS"));
+   t.alice.act<actions::withdraw>("alice"_n, s2a("4.0000 EOS"));
+   CHECK(get_eden_account("alice"_n)->balance() == s2a("6.0000 EOS"));
+   CHECK(get_token_balance("alice"_n) == s2a("994.0000 EOS"));
+   t.alice.act<actions::withdraw>("alice"_n, s2a("6.0000 EOS"));
+   CHECK(get_eden_account("alice"_n) == std::nullopt);
+   CHECK(get_token_balance("alice"_n) == s2a("1000.0000 EOS"));
+   t.alice.act<token::actions::transfer>("alice"_n, "eden.gm"_n, s2a("100.0000 EOS"), "donate");
+   CHECK(get_eden_account("alice"_n) == std::nullopt);
+   CHECK(get_token_balance("alice"_n) == s2a("900.0000 EOS"));
+}
+
+TEST_CASE("election config")
+{
+   auto verify_cfg = [](const auto& config, uint16_t num_participants) {
+      INFO("participants: " << num_participants)
+      if (num_participants < 1)
+      {
+         CHECK(config.empty());
+      }
+      else
+      {
+         CHECK(config.back().num_groups == 1);
+         CHECK(config.front().num_participants == num_participants);
+         for (std::size_t i = 0; i < config.size() - 1; ++i)
+         {
+            CHECK(config[i].num_groups == config[i + 1].num_participants);
+         }
+         // There are at most two group sizes, except for the last round
+         std::set<uint16_t> group_sizes;
+         auto early_rounds = config;
+         early_rounds.pop_back();
+         for (const auto& round_config : early_rounds)
+         {
+            group_sizes.insert(round_config.group_max_size());
+            if (round_config.num_short_groups())
+            {
+               group_sizes.insert(round_config.group_max_size() - 1);
+            }
+         }
+         CHECK(group_sizes.size() <= 2);
+         if (group_sizes.size() == 2)
+         {
+            CHECK(*group_sizes.begin() + 1 == *(--group_sizes.end()));
+         }
+      }
+   };
+   for (uint16_t i = 0; i <= 10000; ++i)
+   {
+      verify_cfg(eden::make_election_config(i), i);
+   }
+}
+
+TEST_CASE("election")
+{
+   eden_tester t;
+   t.genesis();
+   t.electdonate_all();
+   {
+      eden::current_election_state_singleton state("eden.gm"_n, eden::default_scope);
+      auto current = std::get<eden::current_election_state_registration_v1>(state.get());
+      CHECK(eosio::convert_to_json(current.start_time) == "\"2020-04-04T15:30:00.000\"");
+   }
+   t.skip_to("2020-04-03T15:29:59.500");
+   t.electseed(eosio::time_point_sec(0x5e883068u), "Cannot start seeding yet");
+   t.chain.start_block();
+   t.electseed(eosio::time_point_sec(0x5e883068u));
+   t.skip_to("2020-04-04T15:29:59.500");
+   expect(t.alice.trace<actions::electprocess>(1), "Seeding window is still open");
+   t.chain.start_block();
+   t.setup_election();
+   CHECK(get_table_size<eden::vote_table_type>() == 0);
+   eden::election_state_singleton results("eden.gm"_n, eden::default_scope);
+   auto result = std::get<eden::election_state_v0>(results.get());
+   // This is likely to change as it depends on the exact random number algorithm and seed
+   CHECK(result.lead_representative == "pip"_n);
+   std::sort(result.board.begin(), result.board.end());
+   CHECK(result.board == std::vector{"alice"_n, "egeon"_n, "pip"_n});
+}
+
+TEST_CASE("election reschedule")
+{
+   eden_tester t;
+   t.genesis();
+   t.electdonate_all();
+   t.eden_gm.act<actions::electsettime>(s2t("2020-03-02T15:30:01.000"));
+   t.skip_to(t.next_election_time().to_time_point() - eosio::days(1));
+   t.electseed(t.next_election_time().to_time_point() - eosio::days(1));
+   t.skip_to(t.next_election_time().to_time_point());
+   expect(t.alice.trace<actions::electprocess>(100), "No voters");
+}
+
+TEST_CASE("mid-election induction")
+{
+   eden_tester t;
+   bool has_bertie = false;
+   t.genesis();
+   t.electdonate_all();
+   SECTION("pre-registration")
+   {
+      t.skip_to("2020-03-04T15:29:59.500");
+      has_bertie = true;
+      t.induct("bertie"_n);
+   }
+   SECTION("registration")
+   {
+      t.skip_to("2020-03-04T15:30:00.000");
+      has_bertie = true;
+      t.induct("bertie"_n);
+   }
+   t.skip_to("2020-04-03T15:30:00.000");
+   SECTION("pre-seed")
+   {
+      has_bertie = true;
+      t.induct("bertie"_n);
+   }
+   t.electseed(s2t("2020-04-03T15:30:00.000"));
+   SECTION("post-seed")
+   {
+      has_bertie = true;
+      t.induct("bertie"_n);
+   }
+   t.skip_to("2020-04-04T15:30:00.000");
+   for (int i = 0;; ++i)
+   {
+      DYNAMIC_SECTION("electprocess" << i)
+      {
+         has_bertie = true;
+         t.induct("bertie"_n);
+      }
+      auto trace = t.eden_gm.trace<actions::electprocess>(1);
+      if (trace.except)
+      {
+         expect(trace, "Nothing to do");
+         break;
+      }
+      t.chain.start_block();
+   }
+   eden::election_state_singleton results("eden.gm"_n, eden::default_scope);
+   auto result = std::get<eden::election_state_v0>(results.get());
+   std::sort(result.board.begin(), result.board.end());
+   CHECK(result.board == std::vector{"alice"_n, "egeon"_n, "pip"_n});
+
+   if (has_bertie)
+   {
+      CHECK(get_table_size<eden::member_table_type>() == 4);
+      CHECK(get_eden_membership("bertie"_n).election_participation_status() ==
+            eden::not_in_election);
+   }
+   else
+   {
+      CHECK(get_table_size<eden::member_table_type>() == 3);
+   }
+   CHECK(eden::members{"eden.gm"_n}.stats().ranks == std::vector<uint16_t>{2, 1});
+}
+
+TEST_CASE("election with multiple rounds")
+{
+   constexpr std::size_t num_accounts = 200;  // 10000 takes too long
+   eden_tester t;
+   t.genesis();
+   t.eden_gm.act<actions::electsettime>(s2t("2020-07-04T15:30:00.000"));
+   auto test_accounts = make_names(num_accounts - 3);
+   t.create_accounts(test_accounts);
+
+   for (auto account : test_accounts)
+   {
+      t.chain.start_block();
+      t.alice.act<actions::inductinit>(42, "alice"_n, account, std::vector{"pip"_n, "egeon"_n});
+      t.finish_induction(42, "alice"_n, account, {"pip"_n, "egeon"_n});
+   }
+   t.electdonate_all();
+   t.alice.act<actions::setencpubkey>("alice"_n, eosio::public_key{});
+   t.pip.act<actions::setencpubkey>("pip"_n, eosio::public_key{});
+   t.egeon.act<actions::setencpubkey>("egeon"_n, eosio::public_key{});
+   for (auto account : test_accounts)
+   {
+      t.chain.start_block();
+      t.chain.as(account).act<actions::setencpubkey>(account, eosio::public_key{});
+   }
+
+   t.skip_to("2020-07-03T15:30:00.000");
+   t.electseed(eosio::time_point_sec(0x5f009260));
+   t.skip_to("2020-07-04T15:30:00.000");
+   t.setup_election();
+
+   uint8_t round = 0;
+
+   // With 200 members, there should be three rounds
+   CHECK(get_table_size<eden::vote_table_type>() == 200);
+   t.alice.act<actions::electmeeting>("alice"_n, 0,
+                                      std::vector<eden::encrypted_key>{{}, {}, {}, {}},
+                                      eosio::bytes{}, std::nullopt);
+   t.generic_group_vote(t.get_current_groups(), round++);
+   CHECK(get_table_size<eden::vote_table_type>() == 48);
+   t.alice.act<actions::electvideo>(0, "alice"_n, "Qmb7WmZiSDXss5HfuKfoSf6jxTDrHzr8AoAUDeDMLNDuws");
+   t.alice.act<actions::electmeeting>("alice"_n, 1,
+                                      std::vector<eden::encrypted_key>{{}, {}, {}, {}},
+                                      eosio::bytes{}, std::nullopt);
+   t.generic_group_vote(t.get_current_groups(), round++);
+   CHECK(get_table_size<eden::vote_table_type>() == 12);
+   t.alice.act<actions::electmeeting>("alice"_n, 2,
+                                      std::vector<eden::encrypted_key>{{}, {}, {}, {}},
+                                      eosio::bytes{}, std::nullopt);
+   t.generic_group_vote(t.get_current_groups(), round++);
+   CHECK(get_table_size<eden::vote_table_type>() == 3);
+   t.electseed(s2t("2020-07-04T19:30:00.000"));
+   t.chain.start_block((15 * 60 + 30) * 60 * 1000);
+   t.chain.start_block(2 * 60 * 60 * 1000);
+   t.alice.act<actions::electprocess>(256);
+   CHECK(get_table_size<eden::vote_table_type>() == 0);
+   CHECK(get_table_size<eden::encrypted_data_table_type>("election"_n) == 0);
+
+   eden::election_state_singleton results("eden.gm"_n, eden::default_scope);
+   auto result = std::get<eden::election_state_v0>(results.get());
+   // alice wins at every level but the last, because everyone votes for the member with the lowest name
+   CHECK(std::find(result.board.begin(), result.board.end(), "alice"_n) != result.board.end());
+
+   t.alice.act<actions::electvideo>(1, "alice"_n, "Qmb7WmZiSDXss5HfuKfoSf6jxTDrHzr8AoAUDeDMLNDuws");
+   t.alice.act<actions::electvideo>(2, "alice"_n, "Qmb7WmZiSDXss5HfuKfoSf6jxTDrHzr8AoAUDeDMLNDuws");
+
+   CHECK(members("eden.gm"_n).stats().ranks ==
+         std::vector<uint16_t>{200 - 48, 48 - 12, 12 - 3, 3 - 1, 1});
+}
+
+TEST_CASE("budget distribution")
+{
+   eden_tester t;
+   t.genesis();
+   t.set_balance(s2a("36.0000 EOS"));
+   t.run_election();
+
+   t.alice.act<actions::distribute>(250);
+   CHECK(t.get_total_budget() == s2a("1.8000 EOS"));
+   // Skip forward to the next distribution
+   t.skip_to("2020-05-04T15:29:59.500");
+   expect(t.alice.trace<actions::distribute>(250), "Nothing to do");
+   t.chain.start_block();
+   t.alice.act<actions::distribute>(250);
+   CHECK(t.get_total_budget() == s2a("3.5100 EOS"));
+   // Skip into the next election
+   t.skip_to("2020-07-04T15:30:00.000");
+   t.alice.act<actions::distribute>(1);
+   t.alice.act<actions::distribute>(5000);
+   CHECK(t.get_total_budget() == s2a("6.7266 EOS"));
+
+   std::map<eosio::block_timestamp, eosio::asset> expected1{
+        {s2t("2020-04-04T15:30:00.000"), s2a("1.8000 EOS")},
+        {s2t("2020-05-04T15:30:00.000"), s2a("1.7100 EOS")},
+        {s2t("2020-06-03T15:30:00.000"), s2a("1.6245 EOS")},
+        {s2t("2020-07-03T15:30:00.000"), s2a("0.0514 EOS")},
+        {s2t("2020-07-04T15:30:00.000"), s2a("1.5407 EOS")}};
+   CHECK(t.get_budgets_by_period_nosum() == expected1);
+
+   expect(t.egeon.trace<actions::fundtransfer>("egeon"_n, s2t("2020-04-04T15:30:00.000"), 1,
+                                               "alice"_n, s2a("1.8001 EOS"), "memo"),
+          "insufficient balance");
+   expect(t.egeon.trace<actions::fundtransfer>("egeon"_n, s2t("2020-04-04T15:30:00.000"), 1,
+                                               "alice"_n, s2a("-1.0000 EOS"), "memo"),
+          "amount must be positive");
+   expect(t.egeon.trace<actions::fundtransfer>("egeon"_n, s2t("2020-04-04T15:30:00.000"), 1,
+                                               "ahab"_n, s2a("1.0000 EOS"), "memo"),
+          "member ahab not found");
+
+   t.egeon.act<actions::fundtransfer>("egeon"_n, s2t("2020-04-04T15:30:00.000"), 1, "egeon"_n,
+                                      s2a("1.8000 EOS"), "memo");
+
+   CHECK(get_eden_account("egeon"_n)->balance() == s2a("1.8000 EOS"));
+
+   expect(t.alice.trace<actions::usertransfer>("alice"_n, "ahab"_n, s2a("10.0000 EOS"), "memo"),
+          "member ahab not found");
+   t.ahab.act<token::actions::transfer>("ahab"_n, "eden.gm"_n, s2a("10.0000 EOS"), "memo");
+   expect(t.ahab.trace<actions::usertransfer>("ahab"_n, "alice"_n, s2a("10.0000 EOS"), "memo"),
+          "member ahab not found");
+
+   expect(t.alice.trace<actions::usertransfer>("alice"_n, "egeon"_n, s2a("-1.0000 EOS"), "memo"),
+          "amount must be positive");
+   t.alice.act<actions::usertransfer>("alice"_n, "egeon"_n, s2a("10.0000 EOS"), "memo");
+   CHECK(get_eden_account("egeon"_n)->balance() == s2a("11.8000 EOS"));
+   CHECK(get_eden_account("alice"_n)->balance() == s2a("80.0000 EOS"));
+   CHECK(get_eden_account("ahab"_n)->balance() == s2a("10.0000 EOS"));
+}
+
+TEST_CASE("budget distribution triggered by donation")
+{
+   eden_tester t;
+   t.genesis();
+   t.electdonate_all();
+   t.set_balance(s2a("100.0000 EOS"));
+   t.run_election();
+   t.distribute(1);
+   CHECK(t.get_total_budget() == s2a("5.0000 EOS"));
+   t.skip_to("2020-05-04T15:29:59.500");
+   t.set_balance(s2a("100.0000 EOS"));
+   t.chain.start_block();
+   CHECK(t.get_total_budget() == s2a("5.0000 EOS"));
+   t.eosio_token.act<token::actions::transfer>("eosio.token"_n, "eden.gm"_n, s2a("5.0000 EOS"),
+                                               "memo");
+   CHECK(t.get_total_budget() == s2a("10.0000 EOS"));
+   t.skip_to("2020-06-03T15:30:00.0000");
+   t.eosio_token.act<token::actions::transfer>("eosio.token"_n, "eden.gm"_n, s2a("5.0000 EOS"),
+                                               "memo");
+   CHECK(t.get_total_budget() == s2a("15.0000 EOS"));
+   t.skip_to("2020-07-03T15:30:00.0000");
+   t.eosio_token.act<token::actions::transfer>("eosio.token"_n, "eden.gm"_n, s2a("5.0000 EOS"),
+                                               "memo");
+   CHECK(t.get_total_budget() == s2a("15.1666 EOS"));
+}
+
+TEST_CASE("budget distribution minimum period")
+{
+   eden_tester t;
+   t.genesis();
+   t.set_balance(s2a("36.0000 EOS"));
+   t.run_election();
+   t.set_balance(s2a("100000.0000 EOS"));
+   t.eden_gm.act<actions::electsettime>(s2t("2020-06-03T15:30:01.000"));
+   t.electdonate_all();
+   t.run_election();
+   std::map<eosio::block_timestamp, eosio::asset> expected{
+       {s2t("2020-04-04T15:30:00.000"), s2a("1.8000 EOS")},
+       {s2t("2020-05-04T15:30:00.000"), s2a("5000.0000 EOS")},
+       {s2t("2020-06-03T15:30:00.000"), s2a("0.0018 EOS")},
+       {s2t("2020-06-03T15:30:01.000"), s2a("4749.9999 EOS")}};
+   CHECK(t.get_budgets_by_period() == expected);
+}
+
+TEST_CASE("budget distribution exact")
+{
+   eden_tester t;
+   t.genesis();
+   t.set_balance(s2a("36.0000 EOS"));
+   t.run_election();
+   t.set_balance(s2a("1000.0000 EOS"));
+   t.eden_gm.act<actions::electsettime>(s2t("2020-06-03T15:30:00.000"));
+   t.run_election();
+   std::map<eosio::block_timestamp, eosio::asset> expected{
+       {s2t("2020-04-04T15:30:00.000"), s2a("1.8000 EOS")},
+       {s2t("2020-05-04T15:30:00.000"), s2a("50.0000 EOS")},
+       {s2t("2020-06-03T15:30:00.000"), s2a("47.5000 EOS")}};
+   CHECK(t.get_budgets_by_period() == expected);
+}
+
+TEST_CASE("budget distribution underflow")
+{
+   eden_tester t;
+   t.genesis();
+   t.set_balance(s2a("36.0000 EOS"));
+   t.run_election();
+   t.set_balance(s2a("1000.0000 EOS"));
+   t.eden_gm.act<actions::electsettime>(s2t("2020-06-03T15:30:01.000"));
+   t.run_election();
+   std::map<eosio::block_timestamp, eosio::asset> expected{
+       {s2t("2020-04-04T15:30:00.000"), s2a("1.8000 EOS")},
+       {s2t("2020-05-04T15:30:00.000"), s2a("50.0000 EOS")},
+       {s2t("2020-06-03T15:30:01.000"), s2a("47.5000 EOS")}};
+   CHECK(t.get_budgets_by_period() == expected);
+}
+
+#ifdef ENABLE_SET_TABLE_ROWS
+
+TEST_CASE("budget distribution min")
+{
+   eden_tester t;
+   t.genesis();
+   auto members = make_names(100);
+   t.create_accounts(members);
+   for (auto a : members)
+   {
+      t.chain.start_block();
+      t.induct(a);
+   }
+   t.set_balance(s2a("1236.0000 EOS"));
+   t.run_election();
+   t.set_balance(s2a("0.0020 EOS"));
+   t.skip_to("2020-08-03T15:30:00.000");
+   t.distribute();
+   std::map<eosio::block_timestamp, eosio::asset> expected{
+       {s2t("2020-07-04T15:30:00.000"), s2a("61.8000 EOS")},
+       {s2t("2020-08-03T15:30:00.000"), s2a("0.0001 EOS")}};
+   CHECK(t.get_budgets_by_period() == expected);
+}
+
+#endif
+
+TEST_CASE("budget adjustment on resignation")
+{
+   eden_tester t;
+   t.genesis();
+   t.set_balance(s2a("36.0000 EOS"));
+   t.run_election();
+   t.set_balance(s2a("1000.0000 EOS"));
+   t.skip_to("2020-05-04T15:30:00.000");
+   //egeon is satoshi, and receives the whole budget
+   t.egeon.act<actions::resign>("egeon"_n);
+   std::map<eosio::block_timestamp, eosio::asset> expected{};
+   CHECK(t.get_budgets_by_period() == expected);
+   t.skip_to("2020-06-03T15:30:00.000");
+   t.distribute();
+   CHECK(t.get_budgets_by_period() == expected);
+   CHECK(accounts{"eden.gm"_n, "owned"_n}.get_account("master"_n)->balance() ==
+         s2a("1001.8000 EOS"));
+}
+
+TEST_CASE("multi budget adjustment on resignation")
+{
+   eden_tester t;
+   t.genesis();
+   auto members = make_names(100);
+   t.create_accounts(members);
+   for (auto a : members)
+   {
+      t.chain.start_block();
+      t.induct(a);
+   }
+   t.set_balance(s2a("1236.0000 EOS"));
+   t.run_election();
+   t.set_balance(s2a("10000.0000 EOS"));
+   t.skip_to("2020-06-03T15:30:00.000");
+   auto lead_representative =
+       std::get<eden::election_state_v0>(
+           eden::election_state_singleton{"eden.gm"_n, eden::default_scope}.get())
+           .lead_representative;
+   t.chain.as(lead_representative).act<actions::resign>(lead_representative);
+   std::map<eosio::block_timestamp, eosio::asset> expected{
+       {s2t("2020-04-04T15:30:00.000"), s2a("36.2560 EOS")},
+       {s2t("2020-05-04T15:30:00.000"), s2a("293.3316 EOS")},
+       {s2t("2020-06-03T15:30:00.000"), s2a("278.6656 EOS")}};
+   CHECK(t.get_budgets_by_period() == expected);
+   t.skip_to("2020-07-03T15:30:00.000");
+   t.distribute();
+   expected.insert({s2t("2020-07-03T15:30:00.000"), s2a("10.5028 EOS")});
+   CHECK(t.get_budgets_by_period() == expected);
+}
+
+TEST_CASE("bylaws")
+{
+   eden_tester t;
+   t.genesis();
+   t.induct_n(3);
+   t.run_election();
+   auto state = std::get<eden::election_state_v0>(
+       eden::election_state_singleton{"eden.gm"_n, eden::default_scope}.get());
+   std::string bylaws = "xxx";
+   auto bylaws_hash = eosio::sha256(bylaws.data(), bylaws.size());
+   t.chain.as(state.lead_representative)
+       .act<actions::bylawspropose>(state.lead_representative, bylaws);
+
+   int i = 0;
+   SECTION("basic")
+   {
+      for (auto board_member : state.board)
+      {
+         if (i++ == 5)
+            break;
+         t.chain.as(board_member).act<actions::bylawsapprove>(board_member, bylaws_hash);
+      }
+   }
+
+   // Make sure that resigned members are not counted towards the limit
+   SECTION("resign")
+   {
+      for (auto board_member : state.board)
+      {
+         if (board_member != state.lead_representative)
+         {
+            if (i++ >= 2)
+            {
+               t.chain.as(board_member).act<actions::bylawsapprove>(board_member, bylaws_hash);
+            }
+            else
+            {
+               t.chain.as(board_member).act<actions::bylawsapprove>(board_member, bylaws_hash);
+               t.chain.as(board_member).act<actions::resign>(board_member);
+            }
+         }
+      }
+   }
+}
+
+TEST_CASE("accounting")
+{
+   eden_tester t;
+   t.genesis();
+   // should now have 30.0000 EOS, with a 90.0000 EOS deposit from alice
+   CHECK(get_token_balance("eden.gm"_n) == s2a("120.0000 EOS"));
+}
+
+TEST_CASE("pre-genesis balance")
+{
+   eden_tester t{[&] {
+      t.eosio_token.act<token::actions::transfer>("eosio.token"_n, "eden.gm"_n, s2a("3.1415 EOS"),
+                                                  "");
+   }};
+   t.genesis();
+   CHECK(get_token_balance("eden.gm"_n) == t.get_total_balance());
+}
+
+TEST_CASE("clearall")
+{
+   eden_tester t;
+   t.genesis();
+   t.eden_gm.act<actions::clearall>();
+   t.chain.transact({{{"eden.gm"_n, "active"_n},
+                      "eosio"_n,
+                      "unlinkauth"_n,
+                      std::tuple("eden.gm"_n, "eden.gm"_n, "rename"_n)}});
+   t.chain.start_block();
+   t.genesis();
+}
+
+TEST_CASE("account migration")
+{
+   eden_tester t;
+   t.genesis();
+   auto sum_accounts = [](eden::account_table_type& table) {
+      auto total = s2a("0.0000 EOS");
+      for (auto iter = table.begin(), end = table.end(); iter != end; ++iter)
+      {
+         CHECK(iter->balance().amount > 0);
+         total += iter->balance();
+      }
+      return total;
+   };
+
+   {
+      eden::account_table_type user_table{"eden.gm"_n, eden::default_scope};
+      eden::account_table_type system_table{"eden.gm"_n, "owned"_n.value};
+      CHECK(sum_accounts(user_table) + sum_accounts(system_table) ==
+            get_token_balance("eden.gm"_n));
+   }
+   t.eden_gm.act<actions::unmigrate>();
+   {
+      eden::account_table_type user_table{"eden.gm"_n, eden::default_scope};
+      eden::account_table_type system_table{"eden.gm"_n, "owned"_n.value};
+      CHECK(sum_accounts(system_table) == s2a("0.0000 EOS"));
+   }
+   expect(t.alice.trace<actions::donate>("alice"_n, s2a("0.4200 EOS")), "must be migrated");
+
+   while (true)
+   {
+      t.chain.start_block();
+      t.alice.act<token::actions::transfer>("alice"_n, "eden.gm"_n, s2a("15.0000 EOS"), "");
+      t.alice.act<actions::withdraw>("alice"_n, s2a("14.0000 EOS"));
+      auto trace = t.eden_gm.trace<actions::migrate>(1);
+      if (trace.except)
+      {
+         expect(trace, "Nothing to do");
+         break;
+      }
+   }
+   {
+      eden::account_table_type user_table{"eden.gm"_n, eden::default_scope};
+      eden::account_table_type system_table{"eden.gm"_n, "owned"_n.value};
+      CHECK(sum_accounts(user_table) + sum_accounts(system_table) ==
+            get_token_balance("eden.gm"_n));
+   }
+
+#ifdef ENABLE_SET_TABLE_ROWS
+   t.set_balance(s2a("0.0000 EOS"));
+   t.alice.act<actions::withdraw>("alice"_n, get_eden_account("alice"_n)->balance());
+   t.eden_gm.act<token::actions::close>("eden.gm"_n, eosio::symbol("EOS", 4));
+   t.eden_gm.act<actions::unmigrate>();
+   t.eden_gm.act<actions::migrate>(100);
+#endif
+}
+
+#ifdef ENABLE_SET_TABLE_ROWS
+
+TEST_CASE("settablerows")
+{
+   eden_tester t;
+   t.genesis();
+   t.eden_gm.act<actions::settablerows>(
+       eosio::name(eden::default_scope),
+       std::vector<eden::table_variant>{
+           eden::current_election_state_registration_v1{s2t("2020-01-02T00:00:00.0000")}});
+   eden::current_election_state_singleton state{"eden.gm"_n, eden::default_scope};
+   auto value = std::get<eden::current_election_state_registration_v1>(state.get());
+   CHECK(value.start_time.to_time_point() == s2t("2020-01-02T00:00:00.0000"));
+}
+
+#endif
+ 
 
 // TEST_CASE("election-events")
 // {

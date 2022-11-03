@@ -509,6 +509,17 @@ struct eden_tester
       return result;
    };
 
+   auto get_budgets_by_period_nosum() const
+   {
+      std::map<eosio::block_timestamp, eosio::asset> result;
+      eden::distribution_account_table_type distributions{"eden.gm"_n, eden::default_scope};
+      for (auto t : distributions)
+      {
+         result.insert(std::pair(t.distribution_time(), t.balance()));
+      }
+      return result;
+   };
+
    void change_minimun_donation()
    {
       eden_gm.act<actions::changemindon>(s2a("3.0000 EOS"));
