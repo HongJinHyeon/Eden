@@ -491,31 +491,31 @@ TEST_CASE("board resignation")
    t.pip.act<actions::resign>("pip"_n);
 }
 
-// TEST_CASE("renaming")
-// {
-//    eden_tester t;
-//    t.genesis();
-//    auto distribution_time = t.next_election_time();
-//    t.run_election();
-//    t.alice.act<actions::distribute>(100);
-//    t.alice.act<actions::fundtransfer>("alice"_n, distribution_time, 1, "alice"_n, s2a("0.0001 EOS"),
-//                                       "");
-//    test_chain::user_context{t.chain, {{"eden.gm"_n, "board.major"_n}, {"ahab"_n, "active"_n}}}
-//        .act<actions::rename>("alice"_n, "ahab"_n);
+TEST_CASE("renaming")
+{
+   eden_tester t;
+   t.genesis();
+   auto distribution_time = t.next_election_time();
+   t.run_election();
+   t.egeon.act<actions::distribute>(100);
+   t.egeon.act<actions::fundtransfer>("egeon"_n, distribution_time, 1, "egeon"_n, s2a("0.0001 EOS"),
+                                      "");
+   test_chain::user_context{t.chain, {{"eden.gm"_n, "board.major"_n}, {"ahab"_n, "active"_n}}}
+       .act<actions::rename>("egeon"_n, "ahab"_n);
 
-//    expect(t.alice.trace<actions::withdraw>("alice"_n, s2a("0.0001 EOS")), "insufficient balance");
-//    t.ahab.act<actions::withdraw>("ahab"_n, s2a("0.0001 EOS"));
+   expect(t.egeon.trace<actions::withdraw>("egeon"_n, s2a("0.0001 EOS")), "insufficient balance");
+   t.ahab.act<actions::withdraw>("ahab"_n, s2a("0.0001 EOS"));
 
-//    t.chain.start_block();
-//    expect(t.alice.trace<actions::fundtransfer>("alice"_n, distribution_time, 1, "alice"_n,
-//                                                s2a("0.0001 EOS"), ""),
-//           "member alice not found");
-//    t.ahab.act<actions::fundtransfer>("ahab"_n, distribution_time, 1, "ahab"_n, s2a("0.0001 EOS"),
-//                                      "");
+   t.chain.start_block();
+   expect(t.egeon.trace<actions::fundtransfer>("egeon"_n, distribution_time, 1, "egeon"_n,
+                                               s2a("0.0001 EOS"), ""),
+          "member egeon not found");
+   t.ahab.act<actions::fundtransfer>("ahab"_n, distribution_time, 1, "ahab"_n, s2a("0.0001 EOS"),
+                                     "");
 
-//    CHECK(get_eden_membership("pip"_n).representative() == "ahab"_n);
-//    CHECK(get_eden_membership("ahab"_n).representative() == "ahab"_n);
-// }
+   CHECK(get_eden_membership("pip"_n).representative() == "ahab"_n);
+   CHECK(get_eden_membership("ahab"_n).representative() == "ahab"_n);
+}
 
 TEST_CASE("auction")
 {
@@ -975,33 +975,33 @@ TEST_CASE("budget distribution")
    // std::map<eosio::name, eosio::asset> expected{
    //     {"alice"_n, s2a("1.8000 EOS")}};
    // CHECK(t.get_budgets_by_period_nameandasset() == expected);
- 
 
    expect(t.egeon.trace<actions::fundtransfer>("egeon"_n, s2t("2020-04-04T15:30:00.000"), 1,
                                                "alice"_n, s2a("1.8001 EOS"), "memo"),
           "insufficient balance");
-   // expect(t.alice.trace<actions::fundtransfer>("alice"_n, s2t("2020-04-04T15:30:00.000"), 1,
-   //                                             "egeon"_n, s2a("-1.0000 EOS"), "memo"),
-   //        "amount must be positive");
-   // expect(t.alice.trace<actions::fundtransfer>("alice"_n, s2t("2020-04-04T15:30:00.000"), 1,
-   //                                             "ahab"_n, s2a("1.0000 EOS"), "memo"),
-   //        "member ahab not found");
+   expect(t.egeon.trace<actions::fundtransfer>("egeon"_n, s2t("2020-04-04T15:30:00.000"), 1,
+                                               "alice"_n, s2a("-1.0000 EOS"), "memo"),
+          "amount must be positive");
+   expect(t.egeon.trace<actions::fundtransfer>("egeon"_n, s2t("2020-04-04T15:30:00.000"), 1,
+                                               "ahab"_n, s2a("1.0000 EOS"), "memo"),
+          "member ahab not found");
 
-   // t.alice.act<actions::fundtransfer>("alice"_n, s2t("2020-04-04T15:30:00.000"), 1, "egeon"_n,
-   //                                    s2a("1.8000 EOS"), "memo");
-   // CHECK(get_eden_account("egeon"_n)->balance() == s2a("1.8000 EOS"));
+   t.egeon.act<actions::fundtransfer>("egeon"_n, s2t("2020-04-04T15:30:00.000"), 1, "alice"_n,
+                                      s2a("1.8000 EOS"), "memo");
+   CHECK(get_eden_account("alice"_n)->balance() == s2a("1.8000 EOS"));
 
-   // expect(t.alice.trace<actions::usertransfer>("alice"_n, "ahab"_n, s2a("10.0000 EOS"), "memo"),
-   //        "member ahab not found");
-   // t.ahab.act<token::actions::transfer>("ahab"_n, "eden.gm"_n, s2a("10.0000 EOS"), "memo");
-   // expect(t.ahab.trace<actions::usertransfer>("ahab"_n, "egeon"_n, s2a("10.0000 EOS"), "memo"),
-   //        "member ahab not found");
-   // expect(t.alice.trace<actions::usertransfer>("alice"_n, "egeon"_n, s2a("-1.0000 EOS"), "memo"),
-   //        "amount must be positive");
-   // t.alice.act<actions::usertransfer>("alice"_n, "egeon"_n, s2a("10.0000 EOS"), "memo");
-   // CHECK(get_eden_account("egeon"_n)->balance() == s2a("11.8000 EOS"));
-   // CHECK(get_eden_account("alice"_n)->balance() == s2a("80.0000 EOS"));
-   // CHECK(get_eden_account("ahab"_n)->balance() == s2a("10.0000 EOS"));
+   expect(t.egeon.trace<actions::usertransfer>("egeon"_n, "ahab"_n, s2a("10.0000 EOS"), "memo"),
+          "member ahab not found");
+   t.ahab.act<token::actions::transfer>("ahab"_n, "eden.gm"_n, s2a("10.0000 EOS"), "memo");
+   expect(t.ahab.trace<actions::usertransfer>("ahab"_n, "alice"_n, s2a("10.0000 EOS"), "memo"),
+          "member ahab not found");
+
+   expect(t.egeon.trace<actions::usertransfer>("egeon"_n, "alice"_n, s2a("-1.0000 EOS"), "memo"),
+          "amount must be positive");
+   t.egeon.act<actions::usertransfer>("egeon"_n, "alice"_n, s2a("10.0000 EOS"), "memo");
+   CHECK(get_eden_account("alice"_n)->balance() == s2a("11.8000 EOS"));
+   CHECK(get_eden_account("egeon"_n)->balance() == s2a("80.0000 EOS"));
+   CHECK(get_eden_account("ahab"_n)->balance() == s2a("10.0000 EOS"));
 }
 
 // TEST_CASE("budget distribution triggered by donation")
@@ -1304,6 +1304,8 @@ TEST_CASE("budget distribution")
 // }
 
 // #endif
+
+//end Of test
 
 // TEST_CASE("election-events")
 // {
