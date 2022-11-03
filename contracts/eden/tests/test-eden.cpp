@@ -964,13 +964,13 @@ TEST_CASE("budget distribution")
    t.alice.act<actions::distribute>(5000);
    CHECK(t.get_total_budget() == s2a("6.7266 EOS"));
 
-   // std::map<eosio::block_timestamp, eosio::asset> expected1{
-   //      {s2t("2020-04-04T15:30:00.000"), s2a("1.8000 EOS")},
-   //      {s2t("2020-05-04T15:30:00.000"), s2a("1.7100 EOS")},
-   //      {s2t("2020-06-03T15:30:00.000"), s2a("1.6245 EOS")},
-   //      {s2t("2020-07-03T15:30:00.000"), s2a("0.0514 EOS")},
-   //      {s2t("2020-07-04T15:30:00.000"), s2a("1.5407 EOS")}};
-   // CHECK(t.get_budgets_by_period_nosum() == expected1);
+   std::map<eosio::block_timestamp, eosio::asset> expected1{
+        {s2t("2020-04-04T15:30:00.000"), s2a("1.8000 EOS")},
+        {s2t("2020-05-04T15:30:00.000"), s2a("1.7100 EOS")},
+        {s2t("2020-06-03T15:30:00.000"), s2a("1.6245 EOS")},
+        {s2t("2020-07-03T15:30:00.000"), s2a("0.0514 EOS")},
+        {s2t("2020-07-04T15:30:00.000"), s2a("1.5407 EOS")}};
+   CHECK(t.get_budgets_by_period_nosum() == expected1);
 
    // std::map<eosio::name, eosio::asset> expected{
    //     {"alice"_n, s2a("1.8000 EOS")}};
@@ -986,8 +986,15 @@ TEST_CASE("budget distribution")
                                                "ahab"_n, s2a("1.0000 EOS"), "memo"),
           "member ahab not found");
 
+
+   eosio::print(get_eden_account("egeon"_n)->balance());
+   eosio::print(get_eden_account("alice"_n)->balance());
+   eosio::print(get_eden_account("ahab"_n)->balance());
+
+
    t.egeon.act<actions::fundtransfer>("egeon"_n, s2t("2020-04-04T15:30:00.000"), 1, "alice"_n,
                                       s2a("1.8000 EOS"), "memo");
+                                      
    CHECK(get_eden_account("alice"_n)->balance() == s2a("1.8000 EOS"));
 
    expect(t.egeon.trace<actions::usertransfer>("egeon"_n, "ahab"_n, s2a("10.0000 EOS"), "memo"),
@@ -1013,18 +1020,18 @@ TEST_CASE("budget distribution")
 //    t.run_election();
 //    t.distribute(1);
 //    CHECK(t.get_total_budget() == s2a("5.0000 EOS"));
-//    t.skip_to("2020-08-03T15:29:59.500");
+//    t.skip_to("2020-05-04T15:29:59.500");
 //    t.set_balance(s2a("100.0000 EOS"));
 //    t.chain.start_block();
 //    CHECK(t.get_total_budget() == s2a("5.0000 EOS"));
 //    t.eosio_token.act<token::actions::transfer>("eosio.token"_n, "eden.gm"_n, s2a("5.0000 EOS"),
 //                                                "memo");
 //    CHECK(t.get_total_budget() == s2a("10.0000 EOS"));
-//    t.skip_to("2020-09-02T15:30:00.0000");
+//    t.skip_to("2020-06-03T15:30:00.0000");
 //    t.eosio_token.act<token::actions::transfer>("eosio.token"_n, "eden.gm"_n, s2a("5.0000 EOS"),
 //                                                "memo");
 //    CHECK(t.get_total_budget() == s2a("15.0000 EOS"));
-//    t.skip_to("2020-10-02T15:30:00.0000");
+//    t.skip_to("2020-07-03T15:30:00.0000");
 //    t.eosio_token.act<token::actions::transfer>("eosio.token"_n, "eden.gm"_n, s2a("5.0000 EOS"),
 //                                                "memo");
 //    CHECK(t.get_total_budget() == s2a("20.0000 EOS"));
