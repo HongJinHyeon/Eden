@@ -1024,84 +1024,84 @@ TEST_CASE("budget distribution triggered by donation")
    t.skip_to("2020-07-03T15:30:00.0000");
    t.eosio_token.act<token::actions::transfer>("eosio.token"_n, "eden.gm"_n, s2a("5.0000 EOS"),
                                                "memo");
-   CHECK(t.get_total_budget() == s2a("20.0000 EOS"));
+   CHECK(t.get_total_budget() == s2a("15.1666 EOS"));
 }
 
-// TEST_CASE("budget distribution minimum period")
-// {
-//    eden_tester t;
-//    t.genesis();
-//    t.set_balance(s2a("36.0000 EOS"));
-//    t.run_election();
-//    t.set_balance(s2a("100000.0000 EOS"));
-//    t.eden_gm.act<actions::electsettime>(s2t("2020-09-02T15:30:01.000"));
-//    t.electdonate_all();
-//    t.run_election();
-//    std::map<eosio::block_timestamp, eosio::asset> expected{
-//        {s2t("2020-07-04T15:30:00.000"), s2a("1.8000 EOS")},
-//        {s2t("2020-08-03T15:30:00.000"), s2a("5000.0000 EOS")},
-//        {s2t("2020-09-02T15:30:00.000"), s2a("0.0018 EOS")},
-//        {s2t("2020-09-02T15:30:01.000"), s2a("4749.9999 EOS")}};
-//    CHECK(t.get_budgets_by_period() == expected);
-// }
+TEST_CASE("budget distribution minimum period")
+{
+   eden_tester t;
+   t.genesis();
+   t.set_balance(s2a("36.0000 EOS"));
+   t.run_election();
+   t.set_balance(s2a("100000.0000 EOS"));
+   t.eden_gm.act<actions::electsettime>(s2t("2020-06-03T15:30:01.000"));
+   t.electdonate_all();
+   t.run_election();
+   std::map<eosio::block_timestamp, eosio::asset> expected{
+       {s2t("2020-04-04T15:30:00.000"), s2a("1.8000 EOS")},
+       {s2t("2020-05-04T15:30:00.000"), s2a("5000.0000 EOS")},
+       {s2t("2020-06-03T15:30:00.000"), s2a("0.0018 EOS")},
+       {s2t("2020-06-03T15:30:01.000"), s2a("4749.9999 EOS")}};
+   CHECK(t.get_budgets_by_period() == expected);
+}
 
-// TEST_CASE("budget distribution exact")
-// {
-//    eden_tester t;
-//    t.genesis();
-//    t.set_balance(s2a("36.0000 EOS"));
-//    t.run_election();
-//    t.set_balance(s2a("1000.0000 EOS"));
-//    t.eden_gm.act<actions::electsettime>(s2t("2020-09-02T15:30:00.000"));
-//    t.run_election();
-//    std::map<eosio::block_timestamp, eosio::asset> expected{
-//        {s2t("2020-07-04T15:30:00.000"), s2a("1.8000 EOS")},
-//        {s2t("2020-08-03T15:30:00.000"), s2a("50.0000 EOS")},
-//        {s2t("2020-09-02T15:30:00.000"), s2a("47.5000 EOS")}};
-//    CHECK(t.get_budgets_by_period() == expected);
-// }
+TEST_CASE("budget distribution exact")
+{
+   eden_tester t;
+   t.genesis();
+   t.set_balance(s2a("36.0000 EOS"));
+   t.run_election();
+   t.set_balance(s2a("1000.0000 EOS"));
+   t.eden_gm.act<actions::electsettime>(s2t("2020-06-03T15:30:00.000"));
+   t.run_election();
+   std::map<eosio::block_timestamp, eosio::asset> expected{
+       {s2t("2020-04-04T15:30:00.000"), s2a("1.8000 EOS")},
+       {s2t("2020-05-04T15:30:00.000"), s2a("50.0000 EOS")},
+       {s2t("2020-06-03T15:30:00.000"), s2a("47.5000 EOS")}};
+   CHECK(t.get_budgets_by_period() == expected);
+}
 
-// TEST_CASE("budget distribution underflow")
-// {
-//    eden_tester t;
-//    t.genesis();
-//    t.set_balance(s2a("36.0000 EOS"));
-//    t.run_election();
-//    t.set_balance(s2a("1000.0000 EOS"));
-//    t.eden_gm.act<actions::electsettime>(s2t("2020-09-02T15:30:01.000"));
-//    t.run_election();
-//    std::map<eosio::block_timestamp, eosio::asset> expected{
-//        {s2t("2020-07-04T15:30:00.000"), s2a("1.8000 EOS")},
-//        {s2t("2020-08-03T15:30:00.000"), s2a("50.0000 EOS")},
-//        {s2t("2020-09-02T15:30:01.000"), s2a("47.5000 EOS")}};
-//    CHECK(t.get_budgets_by_period() == expected);
-// }
+TEST_CASE("budget distribution underflow")
+{
+   eden_tester t;
+   t.genesis();
+   t.set_balance(s2a("36.0000 EOS"));
+   t.run_election();
+   t.set_balance(s2a("1000.0000 EOS"));
+   t.eden_gm.act<actions::electsettime>(s2t("2020-06-03T15:30:01.000"));
+   t.run_election();
+   std::map<eosio::block_timestamp, eosio::asset> expected{
+       {s2t("2020-04-04T15:30:00.000"), s2a("1.8000 EOS")},
+       {s2t("2020-05-04T15:30:00.000"), s2a("50.0000 EOS")},
+       {s2t("2020-06-03T15:30:01.000"), s2a("47.5000 EOS")}};
+   CHECK(t.get_budgets_by_period() == expected);
+}
 
-// #ifdef ENABLE_SET_TABLE_ROWS
+#ifdef ENABLE_SET_TABLE_ROWS
 
-// TEST_CASE("budget distribution min")
-// {
-//    eden_tester t;
-//    t.genesis();
-//    auto members = make_names(100);
-//    t.create_accounts(members);
-//    for (auto a : members)
-//    {
-//       t.chain.start_block();
-//       t.induct(a);
-//    }
-//    t.set_balance(s2a("1236.0000 EOS"));
-//    t.run_election();
-//    t.set_balance(s2a("0.0020 EOS"));
-//    t.skip_to("2020-08-03T15:30:00.000");
-//    t.distribute();
-//    std::map<eosio::block_timestamp, eosio::asset> expected{
-//        {s2t("2020-07-04T15:30:00.000"), s2a("61.8000 EOS")},
-//        {s2t("2020-08-03T15:30:00.000"), s2a("0.0001 EOS")}};
-//    CHECK(t.get_budgets_by_period() == expected);
-// }
+TEST_CASE("budget distribution min")
+{
+   eden_tester t;
+   t.genesis();
+   auto members = make_names(100);
+   t.create_accounts(members);
+   for (auto a : members)
+   {
+      t.chain.start_block();
+      t.induct(a);
+   }
+   t.set_balance(s2a("1236.0000 EOS"));
+   t.run_election();
+   t.set_balance(s2a("0.0020 EOS"));
+   t.skip_to("2020-08-03T15:30:00.000");
+   t.distribute();
+   std::map<eosio::block_timestamp, eosio::asset> expected{
+       {s2t("2020-07-04T15:30:00.000"), s2a("61.8000 EOS")},
+       {s2t("2020-08-03T15:30:00.000"), s2a("0.0001 EOS")}};
+   CHECK(t.get_budgets_by_period() == expected);
+}
 
-// #endif
+#endif
 
 // TEST_CASE("budget adjustment on resignation")
 // {
