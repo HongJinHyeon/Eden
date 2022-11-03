@@ -943,74 +943,6 @@ TEST_CASE("election with multiple rounds")
          std::vector<uint16_t>{200 - 48, 48 - 12, 12 - 3, 3 - 1, 1});
 }
 
-// TEST_CASE("budget distribution")
-// {
-//    eden_tester t;
-//    t.genesis();
-//    t.set_balance(s2a("36.0000 EOS"));
-//    t.run_election();
-
-//    t.alice.act<actions::distribute>(250);
-//    CHECK(t.get_total_budget() == s2a("1.8000 EOS"));
-//    // Skip forward to the next distribution
-//    t.skip_to("2020-05-04T15:29:59.500");
-//    expect(t.alice.trace<actions::distribute>(250), "Nothing to do");
-//    t.chain.start_block();
-//    t.alice.act<actions::distribute>(250);
-//    CHECK(t.get_total_budget() == s2a("3.5100 EOS"));
-//    // Skip into the next election
-//    t.skip_to("2020-07-04T15:30:00.000");
-//    t.alice.act<actions::distribute>(1);
-//    t.alice.act<actions::distribute>(5000);
-//    CHECK(t.get_total_budget() == s2a("6.7266 EOS"));
-
-//    std::map<eosio::block_timestamp, eosio::asset> expected1{
-//         {s2t("2020-04-04T15:30:00.000"), s2a("1.8000 EOS")},
-//         {s2t("2020-05-04T15:30:00.000"), s2a("1.7100 EOS")},
-//         {s2t("2020-06-03T15:30:00.000"), s2a("1.6245 EOS")},
-//         {s2t("2020-07-03T15:30:00.000"), s2a("0.0514 EOS")},
-//         {s2t("2020-07-04T15:30:00.000"), s2a("1.5407 EOS")}};
-//    CHECK(t.get_budgets_by_period_nosum() == expected1);
-
-//    // std::map<eosio::name, eosio::asset> expected{
-//    //     {"alice"_n, s2a("1.8000 EOS")}};
-//    // CHECK(t.get_budgets_by_period_nameandasset() == expected);
-
-//    expect(t.egeon.trace<actions::fundtransfer>("egeon"_n, s2t("2020-04-04T15:30:00.000"), 1,
-//                                                "alice"_n, s2a("1.8001 EOS"), "memo"),
-//           "insufficient balance");
-//    expect(t.egeon.trace<actions::fundtransfer>("egeon"_n, s2t("2020-04-04T15:30:00.000"), 1,
-//                                                "alice"_n, s2a("-1.0000 EOS"), "memo"),
-//           "amount must be positive");
-//    expect(t.egeon.trace<actions::fundtransfer>("egeon"_n, s2t("2020-04-04T15:30:00.000"), 1,
-//                                                "ahab"_n, s2a("1.0000 EOS"), "memo"),
-//           "member ahab not found");
-
-
-//    eosio::print(get_eden_account("egeon"_n)->balance());
-//    eosio::print(get_eden_account("alice"_n)->balance());
-//    eosio::print(get_eden_account("ahab"_n)->balance());
-
-
-//    t.egeon.act<actions::fundtransfer>("egeon"_n, s2t("2020-04-04T15:30:00.000"), 1, "alice"_n,
-//                                       s2a("1.8000 EOS"), "memo");
-
-//    CHECK(get_eden_account("alice"_n)->balance() == s2a("1.8000 EOS"));
-
-//    expect(t.egeon.trace<actions::usertransfer>("egeon"_n, "ahab"_n, s2a("10.0000 EOS"), "memo"),
-//           "member ahab not found");
-//    t.ahab.act<token::actions::transfer>("ahab"_n, "eden.gm"_n, s2a("10.0000 EOS"), "memo");
-//    expect(t.ahab.trace<actions::usertransfer>("ahab"_n, "alice"_n, s2a("10.0000 EOS"), "memo"),
-//           "member ahab not found");
-
-//    expect(t.egeon.trace<actions::usertransfer>("egeon"_n, "alice"_n, s2a("-1.0000 EOS"), "memo"),
-//           "amount must be positive");
-//    t.egeon.act<actions::usertransfer>("egeon"_n, "alice"_n, s2a("10.0000 EOS"), "memo");
-//    CHECK(get_eden_account("alice"_n)->balance() == s2a("11.8000 EOS"));
-//    CHECK(get_eden_account("egeon"_n)->balance() == s2a("80.0000 EOS"));
-//    CHECK(get_eden_account("ahab"_n)->balance() == s2a("10.0000 EOS"));
-// }
-
 TEST_CASE("budget distribution")
 {
    eden_tester t;
@@ -1018,19 +950,27 @@ TEST_CASE("budget distribution")
    t.set_balance(s2a("36.0000 EOS"));
    t.run_election();
 
-   t.egeon.act<actions::distribute>(250);
+   t.alice.act<actions::distribute>(250);
    CHECK(t.get_total_budget() == s2a("1.8000 EOS"));
    // Skip forward to the next distribution
    t.skip_to("2020-05-04T15:29:59.500");
-   expect(t.egeon.trace<actions::distribute>(250), "Nothing to do");
+   expect(t.alice.trace<actions::distribute>(250), "Nothing to do");
    t.chain.start_block();
-   t.egeon.act<actions::distribute>(250);
+   t.alice.act<actions::distribute>(250);
    CHECK(t.get_total_budget() == s2a("3.5100 EOS"));
    // Skip into the next election
    t.skip_to("2020-07-04T15:30:00.000");
-   t.egeon.act<actions::distribute>(1);
-   t.egeon.act<actions::distribute>(5000);
+   t.alice.act<actions::distribute>(1);
+   t.alice.act<actions::distribute>(5000);
    CHECK(t.get_total_budget() == s2a("6.7266 EOS"));
+
+   std::map<eosio::block_timestamp, eosio::asset> expected1{
+        {s2t("2020-04-04T15:30:00.000"), s2a("1.8000 EOS")},
+        {s2t("2020-05-04T15:30:00.000"), s2a("1.7100 EOS")},
+        {s2t("2020-06-03T15:30:00.000"), s2a("1.6245 EOS")},
+        {s2t("2020-07-03T15:30:00.000"), s2a("0.0514 EOS")},
+        {s2t("2020-07-04T15:30:00.000"), s2a("1.5407 EOS")}};
+   CHECK(t.get_budgets_by_period_nosum() == expected1);
 
    expect(t.egeon.trace<actions::fundtransfer>("egeon"_n, s2t("2020-04-04T15:30:00.000"), 1,
                                                "alice"_n, s2a("1.8001 EOS"), "memo"),
@@ -1042,21 +982,26 @@ TEST_CASE("budget distribution")
                                                "ahab"_n, s2a("1.0000 EOS"), "memo"),
           "member ahab not found");
 
-   t.egeon.act<actions::fundtransfer>("egeon"_n, s2t("2020-04-04T15:30:00.000"), 1, "alice"_n,
+   t.egeon.act<actions::fundtransfer>("egeon"_n, s2t("2020-04-04T15:30:00.000"), 1, "egeon"_n,
                                       s2a("1.8000 EOS"), "memo");
 
-   CHECK(get_eden_account("egeon"_n)->balance() == s2a("0.8000 EOS"));
 
-   expect(t.egeon.trace<actions::usertransfer>("egeon"_n, "ahab"_n, s2a("10.0000 EOS"), "memo"),
+   //egion 1.8
+   //alice 90
+
+   CHECK(get_eden_account("egeon"_n)->balance() == s2a("1.8000 EOS"));
+
+   expect(t.alice.trace<actions::usertransfer>("alice"_n, "ahab"_n, s2a("10.0000 EOS"), "memo"),
           "member ahab not found");
    t.ahab.act<token::actions::transfer>("ahab"_n, "eden.gm"_n, s2a("10.0000 EOS"), "memo");
    expect(t.ahab.trace<actions::usertransfer>("ahab"_n, "alice"_n, s2a("10.0000 EOS"), "memo"),
           "member ahab not found");
-   expect(t.egeon.trace<actions::usertransfer>("egeon"_n, "alice"_n, s2a("-1.0000 EOS"), "memo"),
+
+   expect(t.alice.trace<actions::usertransfer>("alice"_n, "egeon"_n, s2a("-1.0000 EOS"), "memo"),
           "amount must be positive");
-   t.egeon.act<actions::usertransfer>("egeon"_n, "alice"_n, s2a("10.0000 EOS"), "memo");
-   CHECK(get_eden_account("egeon"_n)->balance() == s2a("80.0000 EOS"));
-   CHECK(get_eden_account("alice"_n)->balance() == s2a("11.8000 EOS"));
+   t.alice.act<actions::usertransfer>("alice"_n, "egeon"_n, s2a("10.0000 EOS"), "memo");
+   CHECK(get_eden_account("egeon"_n)->balance() == s2a("11.8000 EOS"));
+   CHECK(get_eden_account("alice"_n)->balance() == s2a("80.0000 EOS"));
    CHECK(get_eden_account("ahab"_n)->balance() == s2a("10.0000 EOS"));
 }
 
