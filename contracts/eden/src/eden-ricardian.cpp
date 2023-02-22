@@ -3,8 +3,8 @@
 const char* eden::withdraw_ricardian = R"(---
 spec_version: "0.1.0"
 title: 내 에덴 잔액에서 인출하기
-summary: Withdraw {{nowrap quantity}} from my Eden balance
-icon: https://ipfs.io/ipfs/QmToeuuNcTXgZPhGLShi9E18qFyQfr92b8fmjWS3roJwq5#aae9c37e262c08f73151a6d415df37d4317de36d76aabfaa1a6249cfdeaffeb2
+summary: 내 Eden 계정 잔액에서 {{nowrap quantity}}를 인출
+icon: https://ipfs.io/ipfs/Qmd5ma5W6HRE3rLCyjN9zypyuPbSPTofLuHxKSgFvxeM2U
 ---
 
 사용 가능한 내 Eden 계정 잔액에서 {{quantity}}를 인출합니다.)";
@@ -12,8 +12,8 @@ icon: https://ipfs.io/ipfs/QmToeuuNcTXgZPhGLShi9E18qFyQfr92b8fmjWS3roJwq5#aae9c3
 const char* eden::genesis_ricardian = R"(---
 spec_version: "0.1.0"
 title: 에덴 커뮤니티 시작
-summary: Found a new community with Genesis members
-icon: https://ipfs.io/ipfs/QmToeuuNcTXgZPhGLShi9E18qFyQfr92b8fmjWS3roJwq5#aae9c37e262c08f73151a6d415df37d4317de36d76aabfaa1a6249cfdeaffeb2
+summary: 제네시스 회원들로 새로운 커뮤니티 설립
+icon: https://ipfs.io/ipfs/Qmd5ma5W6HRE3rLCyjN9zypyuPbSPTofLuHxKSgFvxeM2U
 ---
 
 저는 이로써 에덴 코리아 평화 조약 및 그 하위 규칙을 토대로 하는 {{community}}를 설립합니다:
@@ -27,8 +27,8 @@ icon: https://ipfs.io/ipfs/QmToeuuNcTXgZPhGLShi9E18qFyQfr92b8fmjWS3roJwq5#aae9c3
 const char* eden::clearall_ricardian = R"(---
 spec_version: "0.1.0"
 title: 에덴 커뮤니티 삭제
-summary: WARNING - DELETING COMMUNITY RECORDS
-icon: https://ipfs.io/ipfs/QmToeuuNcTXgZPhGLShi9E18qFyQfr92b8fmjWS3roJwq5#aae9c37e262c08f73151a6d415df37d4317de36d76aabfaa1a6249cfdeaffeb2
+summary: 경고 - 커뮤니티 기록 삭제
+icon: https://ipfs.io/ipfs/Qmd5ma5W6HRE3rLCyjN9zypyuPbSPTofLuHxKSgFvxeM2U
 ---
 
 저는 이 Eden 커뮤니티 관련 모든 테이블을 영구적으로 삭제하며, 이 권한은 Eden 커뮤니티로부터 위임 받았음을 명백히합니다. 저는 블록체인 히스토리에 남겨진 회원 정보를 제외하고 모든 커뮤니티 구성원 및 체인에 저장된 커뮤니티 관련 정보가 영구적으로 삭제됨을 이해했습니다.)";
@@ -36,8 +36,8 @@ icon: https://ipfs.io/ipfs/QmToeuuNcTXgZPhGLShi9E18qFyQfr92b8fmjWS3roJwq5#aae9c3
 const char* eden::inductinit_ricardian = R"(---
 spec_version: "0.1.0"
 title: 에덴에 새구성원 초대
-summary: Invite someone into the community
-icon: https://ipfs.io/ipfs/QmToeuuNcTXgZPhGLShi9E18qFyQfr92b8fmjWS3roJwq5#aae9c37e262c08f73151a6d415df37d4317de36d76aabfaa1a6249cfdeaffeb2
+summary: 커뮤니티에 구성원 초대하기
+icon: https://ipfs.io/ipfs/Qmd5ma5W6HRE3rLCyjN9zypyuPbSPTofLuHxKSgFvxeM2U
 ---
 
 저는 Eden 커뮤니티의 회원으로서 {{invitee}}님을 Eden 커뮤니티의 새 구성원으로 초대합니다. 저는 Eden 커뮤니티 구성원인 {{witnesses.[0]}}님과 {{witnesses.[1]}}님이 {{invitee}}님이 초대식 증인으로서 참관함을 확인했습니다.)";
@@ -45,8 +45,8 @@ icon: https://ipfs.io/ipfs/QmToeuuNcTXgZPhGLShi9E18qFyQfr92b8fmjWS3roJwq5#aae9c3
 const char* eden::inductprofil_ricardian = R"(---
 spec_version: "0.1.0"
 title: 내 에덴 프로필 만들기
-summary: Affirm profile, Peace Treaty and Bylaws
-icon: https://ipfs.io/ipfs/QmToeuuNcTXgZPhGLShi9E18qFyQfr92b8fmjWS3roJwq5#aae9c37e262c08f73151a6d415df37d4317de36d76aabfaa1a6249cfdeaffeb2
+summary: 프로필, 평화 조약 및 하위규칙 확인
+icon: https://ipfs.io/ipfs/Qmd5ma5W6HRE3rLCyjN9zypyuPbSPTofLuHxKSgFvxeM2U
 ---
 
 저는 {{new_member_profile.name}}은 Eden 커뮤니티에 제출한 프로필 정보가 정확한 본인의 정보이며 도용된 것이 아님을 확인합니다. 저는 이 Eden 커뮤니티의 평화 조약과 하위 규칙 준수를 약속합니다:
@@ -60,8 +60,8 @@ icon: https://ipfs.io/ipfs/QmToeuuNcTXgZPhGLShi9E18qFyQfr92b8fmjWS3roJwq5#aae9c3
 const char* eden::inductvideo_ricardian = R"(---
 spec_version: "0.1.0"
 title: 입회식을 기록에 추가
-summary: Add video recording of invitee's induction ceremony to the record
-icon: https://ipfs.io/ipfs/QmToeuuNcTXgZPhGLShi9E18qFyQfr92b8fmjWS3roJwq5#aae9c37e262c08f73151a6d415df37d4317de36d76aabfaa1a6249cfdeaffeb2
+summary: 초대받은 사람의 입회식 비디오 녹화를 기록에 추가
+icon: https://ipfs.io/ipfs/Qmd5ma5W6HRE3rLCyjN9zypyuPbSPTofLuHxKSgFvxeM2U
 ---
 
 저는 초대식 #{{id}}에서 초대 받은 예비 회원의 에덴 초대식을 참관했으며, 이에 해당 영상 IPFS CID를 첨부합니다.)";
@@ -69,8 +69,8 @@ icon: https://ipfs.io/ipfs/QmToeuuNcTXgZPhGLShi9E18qFyQfr92b8fmjWS3roJwq5#aae9c3
 const char* eden::inductendors_ricardian = R"(---
 spec_version: "0.1.0"
 title: 예비 에덴 회원 지지
-summary: Endorsement of invitee for induction into Eden community
-icon: https://ipfs.io/ipfs/QmToeuuNcTXgZPhGLShi9E18qFyQfr92b8fmjWS3roJwq5#aae9c37e262c08f73151a6d415df37d4317de36d76aabfaa1a6249cfdeaffeb2
+summary: 에덴 커뮤니티 입회를 위한 초대 대상자 승인
+icon: https://ipfs.io/ipfs/Qmd5ma5W6HRE3rLCyjN9zypyuPbSPTofLuHxKSgFvxeM2U
 ---
 
 저는 초대 받은 예비 회원의 초대식 #{{id}}을 참관했으며, 해당 예비 회원이 에덴 평화 조약을 이해하고 있으며 이를 준수할 것이라 믿습니다. 저는 예비 회원의 이름, 프로필 소개, 소셜 미디어 서비스 계정 링크, 초대식 비디오 녹화를 포함한 모든 프로필 정보를 주의 깊게 검토했으며, 내가 아는 한 그 정보가 정확함을 확인했습니다. 저는 해당 예비 회원이 커뮤니티의 새 구성원이 됨을 지지하며, Eden 평화 조약 및 그 하위 규칙에 따라 이 Eden 커뮤니티에 초대합니다:
@@ -84,8 +84,8 @@ icon: https://ipfs.io/ipfs/QmToeuuNcTXgZPhGLShi9E18qFyQfr92b8fmjWS3roJwq5#aae9c3
 const char* eden::inductdonate_ricardian = R"(---
 spec_version: "0.1.0"
 title: 에덴 커뮤니티에 기부하기
-summary: Submit {{nowrap quantity}} donation and activate your membership
-icon: https://ipfs.io/ipfs/QmToeuuNcTXgZPhGLShi9E18qFyQfr92b8fmjWS3roJwq5#aae9c37e262c08f73151a6d415df37d4317de36d76aabfaa1a6249cfdeaffeb2
+summary: {{nowrap quantity}}의 기부를 제출하고 멤버십을 활성화
+icon: https://ipfs.io/ipfs/Qmd5ma5W6HRE3rLCyjN9zypyuPbSPTofLuHxKSgFvxeM2U
 ---
 
 저는 제 이름, 프로필 설명 및 소셜 링크를 포함하여 제출한 프로필 정보를 주의 깊게 검토했으며, 제가 아는 한 그 정보가 틀림 없는 사실임을 확인했습니다. 저는 이 Eden 커뮤니티에 자발적으로 {{quantity}}를 기부합니다. 저는 에덴 평화 조약을 읽고 이해했으며, 해당 평화 조약을 준수하겠습니다.
@@ -99,8 +99,8 @@ icon: https://ipfs.io/ipfs/QmToeuuNcTXgZPhGLShi9E18qFyQfr92b8fmjWS3roJwq5#aae9c3
 const char* eden::inductcancel_ricardian = R"(---
 spec_version: "0.1.0"
 title: 초대 취소
-summary: Cancel Induction {{nowrap id}}
-icon: https://ipfs.io/ipfs/QmToeuuNcTXgZPhGLShi9E18qFyQfr92b8fmjWS3roJwq5#aae9c37e262c08f73151a6d415df37d4317de36d76aabfaa1a6249cfdeaffeb2
+summary: {{nowrap id}}의 초대 취소
+icon: https://ipfs.io/ipfs/Qmd5ma5W6HRE3rLCyjN9zypyuPbSPTofLuHxKSgFvxeM2U
 ---
 
 초대식 (대기 중인 초대) #{{id}}를 취소합니다. 초대자, 또는 증인만 대기 중인 초대를 취소할 수 있습니다. 이 작업은 체인 상태에 저장된 초대 기록 및 관련 증인 보증 기록을 삭제합니다. 그러나 관련 정보는 블록체인 히스토리에 남습니다.)";
@@ -109,7 +109,7 @@ const char* eden::inducted_ricardian = R"(---
 spec_version: "0.1.0"
 title: Inducted (Inline Action)
 summary: Internal inline action
-icon: https://ipfs.io/ipfs/QmToeuuNcTXgZPhGLShi9E18qFyQfr92b8fmjWS3roJwq5#aae9c37e262c08f73151a6d415df37d4317de36d76aabfaa1a6249cfdeaffeb2
+icon: https://ipfs.io/ipfs/Qmd5ma5W6HRE3rLCyjN9zypyuPbSPTofLuHxKSgFvxeM2U
 ---
 
 이 작업은 직접 호출되지 않습니다. 회원을 활성화하고 인덕션 테이블을 정리하는 eden::inductdonate의 끝에서 호출되는 인라인 액션입니다.)";
@@ -117,8 +117,8 @@ icon: https://ipfs.io/ipfs/QmToeuuNcTXgZPhGLShi9E18qFyQfr92b8fmjWS3roJwq5#aae9c3
 const char* eden::gc_ricardian = R"(---
 spec_version: "0.1.0"
 title: Garbage Collect
-summary: Clean up expired or moot invitations and endorsements
-icon: https://ipfs.io/ipfs/QmToeuuNcTXgZPhGLShi9E18qFyQfr92b8fmjWS3roJwq5#aae9c37e262c08f73151a6d415df37d4317de36d76aabfaa1a6249cfdeaffeb2
+summary: 만료되었거나 유효하지 않은 초대 및 추천 정리하기
+icon: https://ipfs.io/ipfs/Qmd5ma5W6HRE3rLCyjN9zypyuPbSPTofLuHxKSgFvxeM2U
 ---
 
 만료된 초대식을 제거하고, 중복된 초대 기록 및 관련 보증 기록에 대한 쟁점을 제기합니다. 이것은 호출해도 안전한 관리 조치입니다.)";
